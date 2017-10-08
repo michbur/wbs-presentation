@@ -13,10 +13,10 @@
 
 \newcommand\Fontvi{\fontsize{6}{7.2}\selectfont}
 
-\title{Przewidywanie właściwości sekwencji biologicznych w oparciu o analizę n-gramów}
+\title{Predicting properties of biological sequences using n-gram analysis}
 \date{}
 \author{Michał Burdukiewicz}
-\institute{Zakład Genomiki, Uniwersytet Wrocławski}
+\institute{Department of Genomics, University of Wrocław}
 
 \begin{document}
 
@@ -67,9 +67,9 @@ group2df <- function(group_list, caption = NULL, label = NULL) {
   
 amyloids_plot <- read.csv("amyloid_plot_data.csv")
 
-levels(amyloids_plot[["et"]]) <- c("Best-performing reduced alphabet", 
-                                   "Reduced alphabet", "Full alphabet", 
-                                   "Standard reduced alphabet")
+levels(amyloids_plot[["et"]]) <- c("Best-performing simplified alphabet", 
+                                   "simplified alphabet", "Full alphabet", 
+                                   "Standard simplified alphabet")
 
 
 amyloids_plot[["len_range"]] <- factor(amyloids_plot[["len_range"]], 
@@ -94,39 +94,40 @@ names(best_enc) <- 1L:6
 
 \begin{frame}{} 
 
-Prace eksperymentalne zazwyczaj poprzedza się analizami komputerowymi, które pozwalają optymalniej zaprojektować dalsze badania.
+\textit{In silico} research allows scientists to more efficiently design experimentl studies.
 
-Przykłady: 
+Examples: 
 
 \begin{itemize}
-\item przewidywanie lokalizacji białek w komórce,  
-\item modelowanie struktury przestrzennej białek oraz kwasów nukleinowych,
-\item wykrywanie miejsc wiązania czynników transkrypcyjnych,
-\item poszukiwanie sekwencji kodujących białko.
+\item prediction of protein properties (presence of signal peptides, amyloidogenicity),  
+\item predicting culture conditions.
 \end{itemize}
+
 \end{frame}   
   
-\begin{frame}{Białka amyloidowe}
+\begin{frame}{Amyloid proteins}
 
-Białka związane z licznymi chorobami (np. choroby Alzheimera, Parkinsona, Creutzfeldta-Jakoba) tworzące szkodliwe agregaty.
+Amyloid are proteins associated with various diseases (e.g., Alzheimer’s,
+Creutzfeldt-Jakob’s and Huntington’s diseases) which are able to form harmful aggregates.
 
 \begin{figure} 
 \includegraphics[width=0.61\textwidth]{static_figure/amyloid_aggregates.jpg}
 \end{figure}
 
 \footnotesize
-Agregaty amyloidowe (czerwony) wokół neuronów (zielony). Strittmatter Laboratory, Yale University.
+Amyloid aggregates (red) around neurons (green). Strittmatter Laboratory, Yale University.
 
 \end{frame}  
 
   
-\begin{frame}{Białka amyloidowe}
+\begin{frame}{Amyloid proteins}
 
 Hot-spots:
 \begin{itemize}
-\item krótkie (6-15 aminokwasów), ale bardzo zróżnicowane fragmenty białek amyloidogennych,
-\item miejsce inicjacji agregacji amyloidowej,
-\item formują specyficzne struktury $\beta$ typu "zamka błyskawicznego".
+\item short (6-15 amino acids),
+\item very high variability of amino acid composition,
+\item initiate amyloid aggregation,
+\item create specific "zipper-like" $\beta$-structures.
 \end{itemize}
 
 \begin{figure} 
@@ -136,44 +137,56 @@ Hot-spots:
 \footnotesize\citet{sawaya_atomic_2007}
 \end{frame}
   
-  
-\begin{frame}{Peptydy sygnałowe}
+\begin{frame}{Signal peptides}
 
 \begin{figure} 
-\includegraphics[width=0.75\textwidth]{static_figure/SP.eps}
+\includegraphics[width=0.75\textwidth]{static_figure/SP.png}
 \end{figure}
 
-Peptydy sygnałowe:
-
-\begin{itemize}
-\item krótkie (15-30 aminokwasów) N-końcowe sekwencje,
-\item wystepują w białkach układu odpornościowego, strukturalnych, enzymach metabolicznych i hormonach,
-\item składają się z trzech regionów, gdzie preferowane są aminokwasy o określonych właściwościach fizykochemicznych.
-\item zróżnicowany skład aminokwasowy peptydów sygnałowych utrudnia ich rozpoznawanie.
-\end{itemize}
-
+Signal peptides:
+        \begin{itemize}[<+->]
+          \item are short (20-30 residues) N-terminal amino acid sequences forming $\alpha$-helices,
+            \item direct proteins to the endomembrane system and next to extra- or intracellular localizations,
+            \item are universal enough to direct properly proteins in different secretory systems.
+        \end{itemize}
 \end{frame}
+
+
+  
+\begin{frame}{Signal peptides}
+
+\begin{figure} 
+\includegraphics[width=0.75\textwidth]{static_figure/SP.png}
+\end{figure}
+
+Signal peptides possess three distinct domains with variable length and characteristic amino acid composition~\citep{hegde_surprising_2006}:
+      \begin{itemize}
+        \item n-region: mostly basic residues~\citep{nielsen_prediction_1998},
+        \item h-region: strongly hydrophobic residues~\citep{nielsen_prediction_1998},
+        \item c-region: a few polar, uncharged residues.
+      \end{itemize}
+\end{frame}
+
 
 %Peptydy sygnałowe rozpoczynają się naładowanym dodatnio n-regionem, po którym występuje hydrofobowy h-region i c-region zakończony miejscem cięcia rozpoznawanym przez peptydazę sygnałową. 
 
   
-\begin{frame}{Peptydy sygnałowe}  
-Peptydy sygnałowe zarodźców malarii mają skład aminokwasowy różny od peptydów sygnałowych innych eukariontów.
+\begin{frame}{Signal peptides}  
+Amino acid composition of signal peptides differ between Plasmodium sp. and other eukaryotes. Therefore, predictors of signal peptides do not detect malarial signal peptides accurately.
+
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4,results='asis'>>=
 plot_pca(pca_full)
   #ggtitle("PCA częstości aminokwasów w peptydach sygnałowych")
 @  
 
-PCA częstości aminokwasów w peptydach sygnałowych.
-
-
+PCA of amino acid frequency in signal peptides.
 \end{frame}  
 
-\begin{frame}{n-gramy}
-n-gramy (k-tuple, k-mery):
+\begin{frame}{n-grams}
+n-grams (k-tuples, k-mers):
 \begin{itemize}
-\item podsekwencje (ciągłe lub z przerwami) o długości $n$,
-\item uwzględniają otoczenie danej reszty.
+\item subsequences (continuous or gapped) of $n$ residues,
+\item considers the context of a specific residue.
 \end{itemize}
 
 
@@ -204,7 +217,7 @@ print(xtable(sample_seq_dat[1, 1L:5], include.rownames = FALSE, booktabs = TRUE)
 @
 
 
-2-gramy:
+2-grams:
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=5,results='asis'>>=
 seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 2, aa_v, d = 0) %>% 
   decode_ngrams %>% 
@@ -213,7 +226,7 @@ seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 2, aa_v, d = 0) %>%
   cat(sep = ", ")
 @
 
-2-gramy (przerwa 1):
+2-grams (gap 1):
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=5,results='asis'>>=
 seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 2, aa_v, d = 1) %>% 
   decode_ngrams %>% 
@@ -222,7 +235,7 @@ seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 2, aa_v, d = 1) %>%
   cat(sep = ", ")
 @
 
-3-gramy:
+3-grams:
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=5,results='asis'>>=
 seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 3, aa_v, d = 0) %>% 
   decode_ngrams %>% 
@@ -230,11 +243,9 @@ seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 3, aa_v, d = 0) %>%
   gsub("_", " -- ", x = .) %>% 
   cat(sep = ", ")
 @
-
-
 \end{frame}  
 
-\begin{frame}{n-gramy}  
+\begin{frame}{n-grams}  
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
 L <- 5
 m <- 20 
@@ -252,18 +263,35 @@ ggplot(dat, aes(x = n, y = n_max, color = m, label = formatC(n_max, digits = 4))
   geom_text(size = 4, vjust = -1.5, hjust = "inward", color = "red") +
   coord_cartesian(ylim = c(1, 4.5e7)) +
   scale_x_continuous("n", breaks = 0L:5) +
-  scale_y_continuous("Całkowita liczba n-gramów (skala logarytmiczna)",
+  scale_y_continuous("Total number of n-grams (log-scale)",
                      trans = "log10") +
-  scale_color_discrete("Rozmiar alfabetu") +
+  scale_color_discrete("Alphabet size") +
   my_theme
 @
-n-gramy tworzą duże i trudne do analizy zbiory danych.
-
+n-grams create very large datasets, which are hard to process and analyze.
 \end{frame}
 
-\begin{frame}{n-gramy}  
-QuiPT (\textbf{Qui}ck \textbf{P}ermutation \textbf{T}est) szybko i efektywnie filtruje informatywne n-gramy.
+\begin{frame}{Quick Permutation Test}
+  Informative n-grams are usually selected using permutation tests.
 
+During a permutation test we shuffle randomly class labels and compute a defined statistic (e.g. information gain). Values of statistic for permuted data are compared with the value of statistic for original data.
+
+$$
+\textrm{p-value} = \frac{N_{T_P > T_R}}{N} $$
+
+$N_{T_P > T_R}$: number of cases, where $T_P$ (permuted test statistic) has more extreme values than $T_R$ (test statistic for original data).
+
+$N$: number of permutations.
+  \end{frame}
+  
+\begin{frame}{QuiPT}  
+  
+  \textbf{Qui}ck \textbf{P}ermutation \textbf{T}est is a fast alternative to permutation tests for n-gram data. It also allows precise estimation of p-value.
+
+QuiPT is avaible as part of the \textbf{biogram} R package.
+\end{frame}
+
+\begin{frame}{QuiPT}  
 
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=3.6,results='asis'>>=
 load("data/times2.RData")
@@ -280,33 +308,34 @@ times_dat <- do.call(rbind, lapply(times, function(i)
   group_by(size, variable) %>% 
   summarise(value = mean(value)) %>% 
   ungroup %>% 
-  mutate(variable = factor(variable, labels = c("Test permutacyjny", "QuiPT")))
+  mutate(variable = factor(variable, labels = c("Permutation test", "QuiPT")))
 
 ggplot(times_dat, aes(x = size, y = value, color = variable)) +
   geom_point() +
   geom_line(linetype = "dotted") +
-  scale_y_continuous("Czas obliczeń [s]") +
-  scale_x_continuous("Liczba testowanych n-gramów") +
+  scale_y_continuous("Computation time [s]") +
+  scale_x_continuous("Number of tested n-grams") +
   scale_color_manual("Test", values = c("red", "blue")) +
   my_theme
 @
 
-QuiPT jest szybszy niż klasyczne testy permutacyjne i zwraca dokładniejsze p-wartości.
+QuiPT is faster than classical permutation tests and returns exact p-values.
 \end{frame}
 
-\begin{frame}{Uproszczone alfabety}  
-Uproszczone alfabety:
+\section{Simplified alphabets}
+
+\begin{frame}
+Simplified alphabets:
 \begin{itemize}
-\item opierają się na grupowaniu aminokwasów o podobnych właściwościach fizykochemicznych,
-\item ułatwiają modelowanie i przewidywanie właściwości sekwencji~\citep{murphy_simplified_2000},
-\item tworzą łatwiej interpretowalne modele.
+\item are based on grouping amino acids with similar physicochemical properties,
+\item ease computational analysis of a sequence~\citep{murphy_simplified_2000},
+\item create more interpretable models.
 \end{itemize}
-
 \end{frame}
 
-\begin{frame}{Uproszczone alfabety}  
 
-Dwie sekwencje zupełnie różne pod względu składu aminokwasowego mogą być identyczne pod względem właściwości reszt.
+\begin{frame}  
+Two sequences that are drastically different considering their amino acids composition can have the same physicochemical properties.
 
 
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
@@ -314,24 +343,24 @@ seq1 <- c("f", "k", "v", "w", "p", "d", "h", "g", "s", "g")
 seq2 <- c("y", "m", "c", "i", "y", "r", "a", "q", "t", "n")
 @
 
-Sekwencja I: 
+Sequence I: 
 
 \texttt{\Sexpr{toupper(paste0(seq1, collapse = ""))}}
 
 \medskip
 
-Sekwencja II: 
+Sequence II: 
 
 \texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}}
 
 \end{frame}  
 
 
-\begin{frame}{Uproszczone alfabety}  
+\begin{frame}
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
-seq_dat <- rbind(data.frame(seq = "Sekwencja I", pos = 1L:10, 
+seq_dat <- rbind(data.frame(seq = "Sequence I", pos = 1L:10, 
                             aa = seq1, val = aaprop["ARGP820101", seq1]),
-                 data.frame(seq = "Sekwencja II", pos = 1L:10, 
+                 data.frame(seq = "Sequence II", pos = 1L:10, 
                             aa = seq2, val = aaprop["ARGP820101", seq2])) %>% 
   mutate(hydroph = val < 0.4)
 
@@ -341,8 +370,8 @@ ggplot(seq_dat, aes(x = factor(pos), y = val, label = toupper(aa),
   #geom_point(size = 0) +
   geom_line(linetype = "dotted", color = "black") +
   facet_wrap(~ seq, ncol = 1) +
-  scale_x_discrete("Pozycja") +
-  scale_y_continuous("Wartość hydrofobowości (Argos et al., 1982)", expand = c(.1, .1)) +
+  scale_x_discrete("Position") +
+  scale_y_continuous("Hydrophobicity (Argos et al., 1982)", expand = c(.1, .1)) +
   #scale_color_discrete("Hydrofobowy")
   #guides(colour = guide_legend(override.aes = list(size=4))) +
   my_theme 
@@ -350,11 +379,11 @@ ggplot(seq_dat, aes(x = factor(pos), y = val, label = toupper(aa),
 
 \end{frame}  
 
-\begin{frame}{Uproszczone alfabety}  
+\begin{frame}
 \begin{table}
 \begin{tabular}{cl}
 \toprule
-Nr podgrupy & Aminokwasy \\ 
+Subgroup & Amino acid \\ 
 \midrule
   1 & C, I, L, K, M, F, P, W, Y, V \\ 
 \rowcolor[gray]{0.85}  2 & A, D, E, G, H, N, Q, R, S, T \\ 
@@ -365,9 +394,9 @@ Nr podgrupy & Aminokwasy \\
 \begin{columns}
 \begin{column}{0.44\textwidth}
  
-Sekwencja I: \texttt{\Sexpr{toupper(paste0(seq1, collapse = ""))}} \textrightarrow
+Sequence I: \texttt{\Sexpr{toupper(paste0(seq1, collapse = ""))}} \textrightarrow
 
-Sekwencja II: \texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}} \textrightarrow
+Sequence II: \texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}} \textrightarrow
 
 \end{column}
 \begin{column}{0.5\textwidth}  %%<--- here
@@ -377,59 +406,293 @@ Sekwencja II: \texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}} \textrightar
 \texttt{\Sexpr{paste0(c(rep(1, 5), rep(2, 5)), collapse = "")}}
 \end{column}
 \end{columns}
-
-
-
-
-
-
 \end{frame}  
 
-\begin{frame}{Uproszczone alfabety}  
+\begin{frame}
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
-grid.arrange(plot_pca(pca_full) + ggtitle("Pełny alfabet"),
-             plot_pca(pca_naive) + ggtitle("Uproszczony alfabet"),
+grid.arrange(plot_pca(pca_full) + ggtitle("Full alphabet"),
+             plot_pca(pca_naive) + ggtitle("Simplified alphabet"),
              ncol = 2)
 @
-PCA częstości pojedynczych aminokwasów w peptydach sygnałowych innych eukariotów i zaródźców malarii.
+PCA of amino acid frequency in signal peptides.
 
 \end{frame}  
 
+\section{Prediction of amyloidogenicity}
 
 \begin{frame}{AmyloGram}
 AmyloGram: oparte o redukcję alfabetów i kodowanie n-gramowe narzędzie do predykcji białek amyloidogennych~\citep{burdukiewicz_prediction_2016}.
 \end{frame}
 
 
+\begin{frame}{Cross-validation}
+  <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
 
-\begin{frame}{AmyloGram}
-%inkscape -D -z --file=amylogram1.svg --export-pdf=amylogram1.pdf --export-latex
-\begin{figure} 
-\includegraphics[width=1.05\textwidth]{static_figure/amylogram1.eps}
-\end{figure}
+ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
+  geom_boxplot(outlier.color = NA, outlier.shape = 16, outlier.size = 5, color = NA, fill = NA) +
+  geom_point(data = filter(subdat, et == "Full alphabet"), 
+             aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 5) +
+  scale_x_discrete("") +
+  scale_y_continuous("Mean AUC") +
+  scale_shape_manual("", values = c(16, 16, 15, 15)[3], drop = TRUE) +
+  scale_color_manual("", values = c("red", "grey", "green", "blue")[3], drop = TRUE) +
+  guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2)) + 
+  #facet_wrap(~ pos, nrow = 3) +
+  ggtitle("Training peptide length: 6") + 
+  my_theme + 
+  coord_flip()
+
+@
 \end{frame}
 
-\begin{frame}{AmyloGram}
-%inkscape -D -z --file=amylogram1.svg --export-pdf=amylogram1.pdf --export-latex
+
+\begin{frame}
+  Does amyloidogenicity depend on the exact sequence of amino acids?
+  \end{frame}
+
+\begin{frame}{Standard simplified amino acid alphabets}
+To date, several simplified amino acid alphabets have been proposed, which have been applied to (among others) protein folding and protein structure prediction~\citep{kosiol_new_2004, melo_accuracy_2006}.
+  \end{frame}
+  
+    \begin{frame}{Standard simplified amino acid alphabets}
 \begin{figure} 
-\includegraphics[width=1.05\textwidth]{static_figure/amylogram2.eps}
+\includegraphics[width=0.95\textwidth]{static_figure/ngram2.eps}
 \end{figure}
+
+
+  \end{frame}
+
+
+    \begin{frame}{Cross-validation}
+  <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
+  geom_boxplot(outlier.color = NA, outlier.shape = 16, outlier.size = 5, color = NA, fill = NA) +
+  geom_point(data = filter(subdat, et %in% c("Full alphabet", "Standard simplified alphabet")), 
+             aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 5) +
+  scale_x_discrete("") +
+  scale_y_continuous("Mean AUC") +
+  scale_shape_manual("", values = c(16, 16, 15, 15)[3L:4], drop = TRUE) +
+  scale_color_manual("", values = c("red", "grey", "green", "blue")[3L:4], drop = TRUE) +
+  guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2)) + 
+  #facet_wrap(~ pos, nrow = 3) +
+  ggtitle("Training peptide length: 6") + 
+  my_theme + 
+  coord_flip()
+
+@
+
+Standard simplified amino acid alphabets do not enhance discrimination between amyloidogenic and non-amyloidogenic proteins.
+  
+  \end{frame}
+
+
+\begin{frame}{Novel simplified amino acid alphabets}
+
+\begin{itemize}
+\item 17 measures handpicked from AAIndex database: 
+  \begin{itemize}
+    \item size of residues, 
+    \item hydrophobicity, 
+    \item solvent surface area, 
+    \item frequency in $\beta$-sheets,
+    \item contactivity.
+  \end{itemize}
+  \item 524 284 amino acid simplified alphabets with different level of amino acid alphabet reduction (three to six amino acid groups).
+  \end{itemize}
+
+    \end{frame}
+  
+    \begin{frame}{Novel simplified amino acid alphabets}
+\begin{figure} 
+\includegraphics[width=0.95\textwidth]{static_figure/ngram3.eps}
+\end{figure}
+  \end{frame}
+
+
+
+\begin{frame}{Cross-validation}
+  <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+subdat2 <- droplevels(filter(subdat, et != "Best-performing simplified alphabet"))
+
+ggplot(subdat2, aes(x = len_range, y = AUC_mean)) +
+  geom_boxplot(outlier.color = "grey", outlier.shape = 16, outlier.size = 5, color = "black", fill = "white") +
+  geom_point(data = filter(subdat2, et %in% c("Full alphabet", "Standard simplified alphabet")), 
+             aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 5) +
+  scale_x_discrete("") +
+  scale_y_continuous("Mean AUC") +
+  scale_shape_manual("", values = c(16, 16, 15, 15)[2L:4], drop = FALSE) +
+  scale_color_manual("", values = c("red", "grey", "green", "blue")[2L:4], drop = FALSE) +
+  guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2)) + 
+  #facet_wrap(~ pos, nrow = 3) +
+  ggtitle("Training peptide length: 6") + 
+  my_theme + 
+  coord_flip()
+
+@
+  \tiny
+Hinges of boxes correspond to 
+the 0.25 and 0.75 quartiles. The bar inside the box represents the median. The 
+gray circles correspond to the simplified alphabets with the AUC outside the 0.95 
+confidence interval.
+
+  
+  \end{frame}
+
+\begin{frame}{Ranking alphabets}
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+
+set.seed(3)
+exdat <- data.frame(
+  alph = paste0("A", 1L:5), 
+  c1 = 0.7 + runif(5)/5,
+  c2 = 0.75 + runif(5)/5,
+  c3 = 0.65 + runif(5)/5
+) %>% 
+  melt %>% 
+  group_by(variable) %>% 
+  mutate(r = rank(value)) %>% 
+  ungroup
+
+best_alph <- group_by(exdat, alph) %>%
+  summarise(cr = sum(r)) %>%
+  arrange(desc(cr)) %>% 
+  slice(1) %>% 
+  select(alph) %>% 
+  unlist %>% 
+  as.character
+
+exdat <- mutate(exdat, best = alph == best_alph)
+
+ggplot(exdat, aes(y = variable, x = value, color = alph)) +
+  geom_point(size = 7) +
+  scale_x_continuous("AUC") +
+  scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
+  scale_color_discrete("Alphabet") +
+  my_theme
+
+@
 \end{frame}
 
-\begin{frame}{AmyloGram}
-%inkscape -D -z --file=amylogram1.svg --export-pdf=amylogram1.pdf --export-latex
-\begin{figure} 
-\includegraphics[width=1.05\textwidth]{static_figure/amylogram3.eps}
-\end{figure}
+
+\begin{frame}{Ranking alphabets}
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+ggplot(exdat, aes(y = variable, x = value, color = alph, label = (r - 6)*-1)) +
+  geom_text(size = 7) +
+  scale_x_continuous("AUC") +
+  scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
+  scale_color_discrete("Alphabet") +
+  scale_shape_discrete("Best simplified alphabet") +
+  my_theme
+
+
+@
+We rank alphabets separately in all length categories assuming the rank 1 for the best AUC, rank 2 for the second best AUC and so on.
+
+
 \end{frame}
 
-\begin{frame}{AmyloGram}
-%inkscape -D -z --file=amylogram1.svg --export-pdf=amylogram1.pdf --export-latex
-\begin{figure} 
-\includegraphics[width=1.05\textwidth]{static_figure/amylogram4.eps}
-\end{figure}
+
+
+\begin{frame}{Ranking alphabets}
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+ggplot(exdat, aes(y = variable, x = value, color = alph, shape = best)) +
+  geom_point(size = 7) +
+  scale_x_continuous("AUC") +
+  scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
+  scale_color_discrete("Alphabet") +
+  scale_shape_discrete("Best simplified alphabet") +
+  my_theme
+
+
+@
+The best-performing alphabet has the lowest sum of ranks.  
+
 \end{frame}
 
+  
+    \begin{frame}{The best-perfoming simplified alphabet}
+  <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+
+ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
+  geom_boxplot(outlier.color = "grey", outlier.shape = 16, outlier.size = 5) +
+  geom_point(data = filter(subdat, et != "simplified alphabet"), 
+             aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 5) +
+  scale_x_discrete("") +
+  scale_y_continuous("Mean AUC") +
+  scale_shape_manual("", values = c(16, 16, 15, 15), drop = FALSE) +
+  scale_color_manual("", values = c("red", "grey", "green", "blue"), drop = FALSE) +
+  guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2)) + 
+  #facet_wrap(~ pos, nrow = 3) +
+  ggtitle("Training peptide length: 6") + 
+  my_theme + 
+  coord_flip()
+@
+  \end{frame}
+
+     \begin{frame}{The best-perfoming simplified alphabet}
+   <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+# cat(group2df(best_enc, caption = "The best-performing simplified alphabet."))
+ @
+   \begin{table}[ht]
+\centering
+\begin{tabular}{rl}
+  \toprule
+Subgroup ID & Amino acids \\ 
+  \midrule
+  1 & G \\ 
+   \rowcolor[gray]{0.85}  2 & K, P, R \\ 
+    3 & I, L, V \\ 
+   \rowcolor[gray]{0.85}  4 & F, W, Y \\ 
+    5 & A, C, H, M \\ 
+   \rowcolor[gray]{0.85}  6 & D, E, N, Q, S, T \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+   
+   \end{frame}
+
+     \begin{frame}{The best-perfoming simplified alphabet}
+   \begin{table}[ht]
+\centering
+\begin{tabular}{rl}
+  \toprule
+Subgroup ID & Amino acids \\ 
+  \midrule
+  1 & G \\ 
+   \rowcolor[gray]{0.85}  2 & K, P, R \\ 
+   \rowcolor{blue!20} 3 & I, L, V \\ 
+   \rowcolor{blue!20}  4 & F, W, Y \\ 
+    5 & A, C, H, M \\ 
+   \rowcolor[gray]{0.85}  6 & D, E, N, Q, S, T \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+   
+Group 3 and 4 - hydrophobic amino acids.  
+   \end{frame}
+  
+  
+     \begin{frame}{The best-perfoming simplified alphabet}
+   \begin{table}[ht]
+\centering
+\begin{tabular}{rl}
+  \toprule
+Subgroup ID & Amino acids \\ 
+  \midrule
+  1 & G \\ 
+   \rowcolor{red!20}  2 & K, P, R \\ 
+    3 & I, L, V \\ 
+   \rowcolor[gray]{0.85}  4 & F, W, Y \\ 
+    5 & A, C, H, M \\ 
+   \rowcolor[gray]{0.85}  6 & D, E, N, Q, S, T \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+   
+Group 2 - charged breakers of $\beta$-structures.  
+   
+   \end{frame}  
+   
 \begin{frame}{Porównanie z innymi klasyfikatorami}
 
 \begin{table}[ht]

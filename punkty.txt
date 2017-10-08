@@ -1,0 +1,21 @@
+Dotyczasowy stan wiedzy:
+	Zredukowane alfabety
+		najstarszy (Mahler, 1968)
+		eksperymentalne weryfikacje
+		zwykle na podstawie macierzy substytucji
+		metody tworzenia
+		stosowane w predykcji struktur (Murphy)
+		peptydy sygnalowe (Blomap)
+	n-gramy
+		pseudoaminokwasowy skład Chou (dodaje nowe cechy, ale nie upraszcza modelu)
+		Optimizing amino acid groupings for GPCR classification
+	predykcja lokalizacji
+		MultiLoc, YLoc, SherLoc2
+	predykcja amyloidów
+		Pasta 2.0, FoldAmyloid, APPNN
+Uzasadnienie podjęcia problemu badan
+	brak ujednoliconego frameworku do analiz n-gramowych i redukcji alfabetu
+	brak implementacji metod tworzenia skroconych alfabetow utrudnia ich uzywanie
+	brak generalnosci w predykcjach lokalizacji (peroksysomy u mchow i alg, peptydy sygnałowe malarii/nicieni)
+
+

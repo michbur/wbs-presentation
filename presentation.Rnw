@@ -1,0 +1,537 @@
+\documentclass{beamer}
+\usetheme{metropolis}
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{array,booktabs,tabularx}
+\usepackage{epstopdf}
+\usepackage{colortbl, xcolor}
+\usepackage{url}
+\usepackage[MeX,T1,plmath]{polski}
+
+\newcommand\Fontvi{\fontsize{6}{7.2}\selectfont}
+
+\title{Przewidywanie właściwości sekwencji biologicznych w oparciu o analizę n-gramów}
+\date{}
+\author{Michał Burdukiewicz}
+\institute{Zakład Genomiki, Uniwersytet Wrocławski}
+
+\begin{document}
+
+  <<knitrIntro, echo = FALSE, message=FALSE,warning=FALSE>>=
+source("my_ggplot_theme.R")
+
+library(dplyr)
+library(reshape2)
+library(xtable)
+library(biogram)
+library(seqinr)
+
+source("script.R")  
+
+print_bt <- function(x) {
+  rws <- 0L:(nrow(x) - 1)
+  col <- c("\\rowcolor{green!10}", "\\rowcolor{blue!10}", "\\rowcolor{red!10}", "\\rowcolor{yellow!10}")
+  print(xtable(x, digits = 0), booktabs = TRUE,
+        add.to.row = list(pos = as.list(rws), command = col),
+        print.results = FALSE)
+}
+
+print_bt2 <- function(x) {
+  rws <- seq(1, nrow(x) - 1, by = 2)
+  col <- rep("\\rowcolor[gray]{0.85}", length(rws))
+  print(xtable(x, digits = 0), booktabs = TRUE,
+        add.to.row = list(pos = as.list(rws), command = col),
+        print.results = FALSE, include.rownames = FALSE)
+}  
+  
+cls <- c("\\colorbox{green!10}", "\\colorbox{blue!10}", "\\colorbox{red!10}", "\\colorbox{yellow!10}")
+
+group2df <- function(group_list, caption = NULL, label = NULL) {
+  tab <- data.frame(Groups = sapply(group_list, function(i)
+    paste0(toupper(sort(i)), collapse = ", ")))
+  tab <- cbind(ID = 1L:nrow(tab), tab)
+  rws <- seq(1, nrow(tab) - 1, by = 2)
+  col <- rep("\\rowcolor[gray]{0.85}", length(rws))
+  colnames(tab) <- c("Subgroup ID", "Amino acids")
+  res <- print(xtable(tab, caption = caption, label = label), 
+               include.rownames = FALSE, booktabs = TRUE,
+               add.to.row = list(pos = as.list(rws), command = col), print.results = FALSE, 
+               caption.placement = "top", sanitize.text.function = identity, 
+               sanitize.rownames.function = identity)
+  #res
+  print(xtable(tab))
+}  
+  
+amyloids_plot <- read.csv("amyloid_plot_data.csv")
+
+levels(amyloids_plot[["et"]]) <- c("Best-performing reduced alphabet", 
+                                   "Reduced alphabet", "Full alphabet", 
+                                   "Standard reduced alphabet")
+
+
+amyloids_plot[["len_range"]] <- factor(amyloids_plot[["len_range"]], 
+                                       levels = c("Test peptide length: 6 ", "Test peptide length: 7-10", 
+                                                  "Test peptide length: 11-15", "Test peptide length: 16-25"))
+
+subdat <- filter(amyloids_plot, pos == "Training peptide length: 6")
+
+best_enc <- list(c("G"), 
+                 c("K", "P", "R"),
+                 c("I", "L", "V"),
+                 c("F", "W", "Y"),
+                 c("A", "C", "H", "M"),
+                 c("D", "E", "N", "Q", "S", "T"))
+names(best_enc) <- 1L:6
+
+
+@
+  
+
+\maketitle
+
+\begin{frame}{} 
+
+Prace eksperymentalne zazwyczaj poprzedza się analizami komputerowymi, które pozwalają optymalniej zaprojektować dalsze badania.
+
+Przykłady: 
+
+\begin{itemize}
+\item przewidywanie lokalizacji białek w komórce,  
+\item modelowanie struktury przestrzennej białek oraz kwasów nukleinowych,
+\item wykrywanie miejsc wiązania czynników transkrypcyjnych,
+\item poszukiwanie sekwencji kodujących białko.
+\end{itemize}
+\end{frame}   
+  
+\begin{frame}{Białka amyloidowe}
+
+Białka związane z licznymi chorobami (np. choroby Alzheimera, Parkinsona, Creutzfeldta-Jakoba) tworzące szkodliwe agregaty.
+
+\begin{figure} 
+\includegraphics[width=0.61\textwidth]{static_figure/amyloid_aggregates.jpg}
+\end{figure}
+
+\footnotesize
+Agregaty amyloidowe (czerwony) wokół neuronów (zielony). Strittmatter Laboratory, Yale University.
+
+\end{frame}  
+
+  
+\begin{frame}{Białka amyloidowe}
+
+Hot-spots:
+\begin{itemize}
+\item krótkie (6-15 aminokwasów), ale bardzo zróżnicowane fragmenty białek amyloidogennych,
+\item miejsce inicjacji agregacji amyloidowej,
+\item formują specyficzne struktury $\beta$ typu "zamka błyskawicznego".
+\end{itemize}
+
+\begin{figure} 
+\includegraphics[width=0.9\textwidth]{static_figure/zipper_structure.jpg}
+\end{figure}
+
+\footnotesize\citet{sawaya_atomic_2007}
+\end{frame}
+  
+  
+\begin{frame}{Peptydy sygnałowe}
+
+\begin{figure} 
+\includegraphics[width=0.75\textwidth]{static_figure/SP.eps}
+\end{figure}
+
+Peptydy sygnałowe:
+
+\begin{itemize}
+\item krótkie (15-30 aminokwasów) N-końcowe sekwencje,
+\item wystepują w białkach układu odpornościowego, strukturalnych, enzymach metabolicznych i hormonach,
+\item składają się z trzech regionów, gdzie preferowane są aminokwasy o określonych właściwościach fizykochemicznych.
+\item zróżnicowany skład aminokwasowy peptydów sygnałowych utrudnia ich rozpoznawanie.
+\end{itemize}
+
+\end{frame}
+
+%Peptydy sygnałowe rozpoczynają się naładowanym dodatnio n-regionem, po którym występuje hydrofobowy h-region i c-region zakończony miejscem cięcia rozpoznawanym przez peptydazę sygnałową. 
+
+  
+\begin{frame}{Peptydy sygnałowe}  
+Peptydy sygnałowe zarodźców malarii mają skład aminokwasowy różny od peptydów sygnałowych innych eukariontów.
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4,results='asis'>>=
+plot_pca(pca_full)
+  #ggtitle("PCA częstości aminokwasów w peptydach sygnałowych")
+@  
+
+PCA częstości aminokwasów w peptydach sygnałowych.
+
+
+\end{frame}  
+
+\begin{frame}{n-gramy}
+n-gramy (k-tuple, k-mery):
+\begin{itemize}
+\item podsekwencje (ciągłe lub z przerwami) o długości $n$,
+\item uwzględniają otoczenie danej reszty.
+\end{itemize}
+
+
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=5,results='asis'>>=
+seqs <- read.fasta("./data/seqs.fasta", seqtype = "AA")
+seq_df <- lapply(seqs, function(i) i[1L:27]) %>% 
+  do.call(rbind, .) %>% 
+  cbind(name = sub(">", "", sapply(seqs, function(i) attr(i, "Annot"))), .) %>% 
+  data.frame
+
+colnames(seq_df)[-1] <- paste0("P", 1L:27)
+
+mseq_df <- melt(seq_df, id.vars = "name",
+     value.name = "aa", variable.name = "pos") %>% 
+  mutate(aa = factor(aa, levels = a()[-1])) %>% 
+  mutate(pos = as.numeric(sub("P", "", pos))) %>% 
+  mutate(name = factor(gsub(" ", "\n", name))) %>% 
+  mutate(name = relevel(name, "Plasmodium\nfalciparum")) %>% 
+  mutate(sig = pos == "25") %>% 
+  inner_join(data.frame(aa = a()[-1], hydr = aaprop[2, ]))
+
+sample_seq <- as.matrix(seq_df[, 2L:10])
+colnames(sample_seq) <- paste0("P", 1L:ncol(sample_seq))
+rownames(sample_seq) <- paste0("S", 1L:4)
+sample_seq_dat <- data.frame(sample_seq)
+
+print(xtable(sample_seq_dat[1, 1L:5], include.rownames = FALSE, booktabs = TRUE))
+@
+
+
+2-gramy:
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=5,results='asis'>>=
+seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 2, aa_v, d = 0) %>% 
+  decode_ngrams %>% 
+  #paste0(",") %>%
+  gsub("_", " - ", x = .) %>% 
+  cat(sep = ", ")
+@
+
+2-gramy (przerwa 1):
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=5,results='asis'>>=
+seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 2, aa_v, d = 1) %>% 
+  decode_ngrams %>% 
+  #paste0(",") %>%
+  gsub("_", " -- ", x = .) %>% 
+  cat(sep = ", ")
+@
+
+3-gramy:
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=5,results='asis'>>=
+seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 3, aa_v, d = 0) %>% 
+  decode_ngrams %>% 
+  #paste0(",") %>%
+  gsub("_", " -- ", x = .) %>% 
+  cat(sep = ", ")
+@
+
+
+\end{frame}  
+
+\begin{frame}{n-gramy}  
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
+L <- 5
+m <- 20 
+m2 <- 6
+n <- 1:5
+n_max <- L*m^n
+n_max2 <- L*m2^n
+#dat <- data.frame(n = c(n, n), n_max = c(n_max, n_max2), m = c(rep(m, 5), rep(m2, 5)))
+dat <- data.frame(n = n, n_max = n_max, m = rep(m, 5))
+dat[["m"]] <- factor(dat[["m"]])
+
+ggplot(dat, aes(x = n, y = n_max, color = m, label = formatC(n_max, digits = 4))) + 
+  geom_line(linetype="dotted", size=1.5) + 
+  geom_point(size=4, shape=16) +
+  geom_text(size = 4, vjust = -1.5, hjust = "inward", color = "red") +
+  coord_cartesian(ylim = c(1, 4.5e7)) +
+  scale_x_continuous("n", breaks = 0L:5) +
+  scale_y_continuous("Całkowita liczba n-gramów (skala logarytmiczna)",
+                     trans = "log10") +
+  scale_color_discrete("Rozmiar alfabetu") +
+  my_theme
+@
+n-gramy tworzą duże i trudne do analizy zbiory danych.
+
+\end{frame}
+
+\begin{frame}{n-gramy}  
+QuiPT (\textbf{Qui}ck \textbf{P}ermutation \textbf{T}est) szybko i efektywnie filtruje informatywne n-gramy.
+
+
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=3.6,results='asis'>>=
+load("data/times2.RData")
+
+times_dat <- do.call(rbind, lapply(times, function(i) 
+  t(sapply(i, function(j) {
+    c(slow = unname(j[["slow"]]["elapsed"]),
+      quick = unname(j[["quick"]]["elapsed"]))
+  }))
+)) %>% 
+  data.frame %>% 
+  mutate(size = sort(rep(1L:5*10, 10))) %>% 
+  melt(id.vars = "size") %>% 
+  group_by(size, variable) %>% 
+  summarise(value = mean(value)) %>% 
+  ungroup %>% 
+  mutate(variable = factor(variable, labels = c("Test permutacyjny", "QuiPT")))
+
+ggplot(times_dat, aes(x = size, y = value, color = variable)) +
+  geom_point() +
+  geom_line(linetype = "dotted") +
+  scale_y_continuous("Czas obliczeń [s]") +
+  scale_x_continuous("Liczba testowanych n-gramów") +
+  scale_color_manual("Test", values = c("red", "blue")) +
+  my_theme
+@
+
+QuiPT jest szybszy niż klasyczne testy permutacyjne i zwraca dokładniejsze p-wartości.
+\end{frame}
+
+\begin{frame}{Uproszczone alfabety}  
+Uproszczone alfabety:
+\begin{itemize}
+\item opierają się na grupowaniu aminokwasów o podobnych właściwościach fizykochemicznych,
+\item ułatwiają modelowanie i przewidywanie właściwości sekwencji~\citep{murphy_simplified_2000},
+\item tworzą łatwiej interpretowalne modele.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Uproszczone alfabety}  
+
+Dwie sekwencje zupełnie różne pod względu składu aminokwasowego mogą być identyczne pod względem właściwości reszt.
+
+
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
+seq1 <- c("f", "k", "v", "w", "p", "d", "h", "g", "s", "g")
+seq2 <- c("y", "m", "c", "i", "y", "r", "a", "q", "t", "n")
+@
+
+Sekwencja I: 
+
+\texttt{\Sexpr{toupper(paste0(seq1, collapse = ""))}}
+
+\medskip
+
+Sekwencja II: 
+
+\texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}}
+
+\end{frame}  
+
+
+\begin{frame}{Uproszczone alfabety}  
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
+seq_dat <- rbind(data.frame(seq = "Sekwencja I", pos = 1L:10, 
+                            aa = seq1, val = aaprop["ARGP820101", seq1]),
+                 data.frame(seq = "Sekwencja II", pos = 1L:10, 
+                            aa = seq2, val = aaprop["ARGP820101", seq2])) %>% 
+  mutate(hydroph = val < 0.4)
+
+ggplot(seq_dat, aes(x = factor(pos), y = val, label = toupper(aa), 
+                    group = seq, colour = hydroph)) +
+  geom_text(vjust = "outward", size = 5, show_guide = FALSE) +
+  #geom_point(size = 0) +
+  geom_line(linetype = "dotted", color = "black") +
+  facet_wrap(~ seq, ncol = 1) +
+  scale_x_discrete("Pozycja") +
+  scale_y_continuous("Wartość hydrofobowości (Argos et al., 1982)", expand = c(.1, .1)) +
+  #scale_color_discrete("Hydrofobowy")
+  #guides(colour = guide_legend(override.aes = list(size=4))) +
+  my_theme 
+@
+
+\end{frame}  
+
+\begin{frame}{Uproszczone alfabety}  
+\begin{table}
+\begin{tabular}{cl}
+\toprule
+Nr podgrupy & Aminokwasy \\ 
+\midrule
+  1 & C, I, L, K, M, F, P, W, Y, V \\ 
+\rowcolor[gray]{0.85}  2 & A, D, E, G, H, N, Q, R, S, T \\ 
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{columns}
+\begin{column}{0.44\textwidth}
+ 
+Sekwencja I: \texttt{\Sexpr{toupper(paste0(seq1, collapse = ""))}} \textrightarrow
+
+Sekwencja II: \texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}} \textrightarrow
+
+\end{column}
+\begin{column}{0.5\textwidth}  %%<--- here
+
+\texttt{\Sexpr{paste0(c(rep(1, 5), rep(2, 5)), collapse = "")}}
+
+\texttt{\Sexpr{paste0(c(rep(1, 5), rep(2, 5)), collapse = "")}}
+\end{column}
+\end{columns}
+
+
+
+
+
+
+\end{frame}  
+
+\begin{frame}{Uproszczone alfabety}  
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
+grid.arrange(plot_pca(pca_full) + ggtitle("Pełny alfabet"),
+             plot_pca(pca_naive) + ggtitle("Uproszczony alfabet"),
+             ncol = 2)
+@
+PCA częstości pojedynczych aminokwasów w peptydach sygnałowych innych eukariotów i zaródźców malarii.
+
+\end{frame}  
+
+
+\begin{frame}{AmyloGram}
+AmyloGram: oparte o redukcję alfabetów i kodowanie n-gramowe narzędzie do predykcji białek amyloidogennych~\citep{burdukiewicz_prediction_2016}.
+\end{frame}
+
+
+
+\begin{frame}{AmyloGram}
+%inkscape -D -z --file=amylogram1.svg --export-pdf=amylogram1.pdf --export-latex
+\begin{figure} 
+\includegraphics[width=1.05\textwidth]{static_figure/amylogram1.eps}
+\end{figure}
+\end{frame}
+
+\begin{frame}{AmyloGram}
+%inkscape -D -z --file=amylogram1.svg --export-pdf=amylogram1.pdf --export-latex
+\begin{figure} 
+\includegraphics[width=1.05\textwidth]{static_figure/amylogram2.eps}
+\end{figure}
+\end{frame}
+
+\begin{frame}{AmyloGram}
+%inkscape -D -z --file=amylogram1.svg --export-pdf=amylogram1.pdf --export-latex
+\begin{figure} 
+\includegraphics[width=1.05\textwidth]{static_figure/amylogram3.eps}
+\end{figure}
+\end{frame}
+
+\begin{frame}{AmyloGram}
+%inkscape -D -z --file=amylogram1.svg --export-pdf=amylogram1.pdf --export-latex
+\begin{figure} 
+\includegraphics[width=1.05\textwidth]{static_figure/amylogram4.eps}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Porównanie z innymi klasyfikatorami}
+
+\begin{table}[ht]
+\centering
+
+\begin{tabular}{ccccc}
+  \toprule
+Klasyfikator & AUC & MCC \\ 
+  \midrule
+AmyloGram & \textbf{0.8972} & \textbf{0.6307} \\ 
+  \rowcolor{white}PASTA 2.0 \citep{walsh_pasta_2014} & 0.8550 & 0.4291  \\ 
+   FoldAmyloid \citep{garbuzynskiy_foldamyloid:_2010} & 0.7351 & 0.4526  \\ 
+  \rowcolor{white}APPNN \citep{familia_prediction_2015} & 0.8343 & 0.5823  \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+
+AUC (Area Under the Curve): miara jakości predykcji (1: idealny dobry klasyfikator, 0: idealnie zły klasyfikator).
+
+MCC (Matthew's Correlation Coefficient): miara jakości predykcji (1: idealny dobry klasyfikator, -1: idealnie zły klasyfikator).
+
+\footnotesize
+
+AmyloGram porównano z innymi klasyfikatorami na zewnętrznym zbiorze danych \textit{pep424}.
+\end{frame}
+
+
+\begin{frame}{Walidacja eksperymentalna}
+\begin{enumerate}
+\item Wszystkie nieamyloidowe peptydy z bazy AmyLoad zanalizowano AmyloGramem. 
+\item Wybrano 8 peptydów z najwyższym prawdopodobieństwem amyloidogenności.
+\item Peptydy zbadano przy pomocy spektroskopii fourierowskiej (FTIR).
+\item Wyniki potwierdzono esejami z czerwienią Kongo i tioflawiną.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Walidacja eksperymentalna}
+
+<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4.9,warning=FALSE>>=
+ftir_res <- read.csv("ftir_amylogram_pasta2_literature.csv")
+
+ftir_res_agg <- ftir_res %>% 
+  group_by(amyl_db, amyl_ftir) %>% 
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  mutate(amyl_db = factor(amyl_db, labels = c("Nieamyloid", "Amyloid")),
+         amyl_ftir = factor(amyl_ftir, labels = c("Nieamyloid", "Amyloid"))) %>% 
+  filter(amyl_db == "Nieamyloid",
+         !is.na(amyl_ftir)) %>% 
+  mutate(count = ifelse(count == 7, 4, count)) %>% 
+  rbind(data.frame(amyl_db = "Nieamyloid", amyl_ftir = "Amyloid", count = 3)) %>% 
+  mutate(frac = count/sum(count),
+         count_nice = ifelse(count > 2, paste0(count, " peptydy"), paste0(count, " peptyd")),
+         amyl_db = factor(c("brak danych", 
+                            "brak danych", 
+                            "amyloid")))
+
+ggplot(ftir_res_agg, aes(x = amyl_ftir, y = frac, fill = amyl_db,
+                         label = count_nice)) +
+  geom_bar(stat = "identity") +
+  geom_text(position = position_stack(vjust=0.5), color = "white", size = 4) +
+  scale_y_continuous("Frakcja peptydów") +
+  scale_x_discrete("Wynik FTIR") +
+  scale_fill_manual("Dane literaturowe", values = c("darkred", "navyblue"),
+                    na.value = "gray47") +
+  my_theme
+@
+
+\end{frame}
+
+\begin{frame}{Podsumowanie}
+\begin{enumerate}
+\item Stworzono algorytm efektywnie selekcjonujący informatywne n-gramy 
+reprezentujące sekwencje aminokwasowe.
+
+\item Opracowano metody poszukujące uproszczone 
+alfabety aminokwasowe.
+
+\item Opracowaną metodologię zastosowano do przewidywania białek 
+amyloidogennych tworząc pakiet \textbf{R} i web server AmyloGram (\url{http://www.smorfland.uni.wroc.pl/shiny/AmyloGram/}).
+
+\end{enumerate}
+\end{frame}  
+
+\begin{frame}{Perspektywy}
+\begin{enumerate}
+\item Zastosowanie opracowanej metodologii do przewidywania lokalizacji 
+subkomórkowej białek.
+
+\item Stworzenie oprogramowania wspierającego interpretowanie wyników analizy n-gramów i uproszczonych alfabetów.
+
+\item Upublicznienie rozwijanych metod w postaci pakietu \textit{biogram} w środowisku programistycznym i statystycznym \textbf{R}.
+
+\end{enumerate}
+\end{frame}  
+
+\begin{frame}[allowframebreaks]
+        \frametitle{References}
+  \bibliographystyle{apalike}
+  \bibliography{references}
+\end{frame}  
+
+
+
+\end{document}

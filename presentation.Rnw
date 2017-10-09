@@ -9,7 +9,6 @@
 \usepackage{epstopdf}
 \usepackage{colortbl, xcolor}
 \usepackage{url}
-\usepackage[MeX,T1,plmath]{polski}
 
 \newcommand\Fontvi{\fontsize{6}{7.2}\selectfont}
 
@@ -28,7 +27,8 @@ library(reshape2)
 library(xtable)
 library(biogram)
 library(seqinr)
-
+library(VennDiagram)
+  
 source("script.R")  
 
 print_bt <- function(x) {
@@ -487,6 +487,8 @@ ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
   coord_flip()
 
 @
+AUC (Area Under the Curve) measures the performance of a classifier (1 - classifier always properly recognizes amyloid proteins, 0 - classifier never properly recognizes amyloid proteins).
+
 \end{frame}
 
 
@@ -582,76 +584,6 @@ confidence interval.
   
   \end{frame}
 
-\begin{frame}{Ranking alphabets}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
-
-set.seed(3)
-exdat <- data.frame(
-  alph = paste0("A", 1L:5), 
-  c1 = 0.7 + runif(5)/5,
-  c2 = 0.75 + runif(5)/5,
-  c3 = 0.65 + runif(5)/5
-) %>% 
-  melt %>% 
-  group_by(variable) %>% 
-  mutate(r = rank(value)) %>% 
-  ungroup
-
-best_alph <- group_by(exdat, alph) %>%
-  summarise(cr = sum(r)) %>%
-  arrange(desc(cr)) %>% 
-  slice(1) %>% 
-  select(alph) %>% 
-  unlist %>% 
-  as.character
-
-exdat <- mutate(exdat, best = alph == best_alph)
-
-ggplot(exdat, aes(y = variable, x = value, color = alph)) +
-  geom_point(size = 4) +
-  scale_x_continuous("AUC") +
-  scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
-  scale_color_discrete("Alphabet") +
-  my_theme
-
-@
-\end{frame}
-
-
-\begin{frame}{Ranking alphabets}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
-ggplot(exdat, aes(y = variable, x = value, color = alph, label = (r - 6)*-1)) +
-  geom_text(size = 4) +
-  scale_x_continuous("AUC") +
-  scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
-  scale_color_discrete("Alphabet") +
-  scale_shape_discrete("Best simplified alphabet") +
-  my_theme
-
-
-@
-We rank alphabets separately in all length categories assuming the rank 1 for the best AUC, rank 2 for the second best AUC and so on.
-
-
-\end{frame}
-
-
-
-\begin{frame}{Ranking alphabets}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
-ggplot(exdat, aes(y = variable, x = value, color = alph, shape = best)) +
-  geom_point(size = 4) +
-  scale_x_continuous("AUC") +
-  scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
-  scale_color_discrete("Alphabet") +
-  scale_shape_discrete("Best simplified alphabet") +
-  my_theme
-
-
-@
-The best-performing alphabet has the lowest sum of ranks.  
-
-\end{frame}
 
   
     \begin{frame}{The best-perfoming simplified alphabet}
@@ -776,12 +708,6 @@ Similarity index~\citep{stephenson_unearthing_2013} measures the similarity betw
 \end{frame}
 
 
-\begin{frame}{Similarity index}
-<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
-print(simil_plot)
-@
-AUC (Area Under the Curve) measures the performance of a classifier (1 - classifier always properly recognizes amyloid proteins, 0 - classifier never properly recognizes amyloid proteins).
-\end{frame}
 
 \begin{frame}{Similarity index}
 <<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
@@ -846,73 +772,197 @@ MCC (Matthew's Correlation Coefficient) measures the performance of a classifier
 \end{frame}
 
 
+
 \begin{frame}{Experimental validation}
-
-All non-amyloid peptides from AmyLoad database were analyzed \textit{in silico} using AmyloGram. 
-8 non-amyloid peptides with the larged probability of being amyloids (as assessed by AmyloGram), were analyzed in FTIR experiments.
-Results were confirmed with Congo Red and thioflavin T assays.
-\end{enumerate}
+\begin{figure} 
+\includegraphics[width=0.95\textwidth]{static_figure/diagram1.eps}
+\end{figure}
 \end{frame}
 
-\begin{frame}{Walidacja eksperymentalna}
+\begin{frame}{Experimental validation}
+\begin{figure} 
+\includegraphics[width=0.95\textwidth]{static_figure/diagram2.eps}
+\end{figure}
+\end{frame}
 
-<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4.9,warning=FALSE>>=
-ftir_res <- read.csv("ftir_amylogram_pasta2_literature.csv")
+\section{Other applications}
 
-ftir_res_agg <- ftir_res %>% 
-  group_by(amyl_db, amyl_ftir) %>% 
-  summarise(count = n()) %>% 
-  ungroup() %>% 
-  mutate(amyl_db = factor(amyl_db, labels = c("Nieamyloid", "Amyloid")),
-         amyl_ftir = factor(amyl_ftir, labels = c("Nieamyloid", "Amyloid"))) %>% 
-  filter(amyl_db == "Nieamyloid",
-         !is.na(amyl_ftir)) %>% 
-  mutate(count = ifelse(count == 7, 4, count)) %>% 
-  rbind(data.frame(amyl_db = "Nieamyloid", amyl_ftir = "Amyloid", count = 3)) %>% 
-  mutate(frac = count/sum(count),
-         count_nice = ifelse(count > 2, paste0(count, " peptydy"), paste0(count, " peptyd")),
-         amyl_db = factor(c("brak danych", 
-                            "brak danych", 
-                            "amyloid")))
+\begin{frame}{Signal peptide prediction}
+\begin{figure} 
+\includegraphics[width=0.75\textwidth]{static_figure/SP.png}
+\end{figure}
+SignalP 4.1~\citep{petersen_signalp_2011} combines output of two separate predictors:
+\begin{itemize}
+\item cleavage site,
+\item signal peptide.
+\end{itemize}
+\end{frame}
 
-ggplot(ftir_res_agg, aes(x = amyl_ftir, y = frac, fill = amyl_db,
-                         label = count_nice)) +
-  geom_bar(stat = "identity") +
-  geom_text(position = position_stack(vjust=0.5), color = "white", size = 4) +
-  scale_y_continuous("Frakcja peptydów") +
-  scale_x_discrete("Wynik FTIR") +
-  scale_fill_manual("Dane literaturowe", values = c("darkred", "navyblue"),
-                    na.value = "gray47") +
-  my_theme
+\begin{frame}{Signal peptide prediction}
+
+<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
+source("my_ggplot_theme.R")
+load("./results/fr_benchmark_full.RData")
+load("./results/fr_benchmark_signalHsmm.RData")
+
+dat <- unlist(fr_benchmark, recursive = FALSE) %>% 
+  unlist(recursive = FALSE) %>% 
+  do.call(rbind, .) %>% 
+  lapply(unlist) %>% 
+  data.frame() %>% 
+  rename(MCC = MCC.MCC, AUC = AUC.AUC) %>% 
+  mutate(classifier = "signalP",
+         id = rep(sort(rep(1L:20, 2)), 9),
+         sp = factor(sp, labels = c(20, 2, 4)),
+         cs = factor(cs, labels = c(20, 2, 4))) %>% 
+  mutate(sp = factor(sp, levels = levels(sp)[c(2, 3, 1)]),
+         cs = factor(cs, levels = levels(cs)[c(2, 3, 1)]))
+
+cmp_dat <- cbind(filter(dat, !plas),
+                 filter(dat, plas) %>% 
+                   select(MCC, AUC, mscsd) %>% 
+                   rename(MCC_p = MCC, AUC_p = AUC, mscsd_p = mscsd))
+
+filter(cmp_dat, sp != "4", cs != "4") %>%
+  ggplot(aes(x = MCC, y = MCC_p)) +
+  geom_point(aes(fill = sp), size = 3, shape = 21, color = "white") +
+  geom_point(aes(color = cs), size = 4.5, shape = 1, stroke = 1.2) +
+  my_theme +
+  scale_x_continuous("MCC (other eukaryotes)") +
+  scale_y_continuous("MCC (Plasmodiidae)") +
+  scale_fill_discrete("Alphabet\n(signal peptide)") +
+  scale_color_discrete("Alphabet\n(cleavage site)")
 @
+\end{frame}
+
+\begin{frame}{Prediction of culturing conditions}
+<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,fig.width=4,warning=FALSE, out.height=150,out.width=170>>=
+load("./results/venn_plots.RData")
+
+grid.draw(venn_plots[[4]])
+grid.newpage()
+@
+\url{metanogen.biotech.uni.wroc.pl}~\citep{jablonski2015methanogenic}
 
 \end{frame}
 
-\begin{frame}{Podsumowanie}
+\begin{frame}{Prediction of culturing conditions}
+Results of nested cross-validation of MethanoGram.
+\begin{table}[ht]
+\centering
+\begin{tabular}{ll}
+  \hline
+Culturing condition & Mean error \\ 
+  \hline
+Growth rate [h$^{-1}$] & 0.35 \\ 
+Growth doubling time [h] &  27.19 \\ 
+Optimal growth temp. [$^{\circ}$C] & 8.89 \\ 
+Optimal growth pH & 0.47 \\ 
+Optimal growth NaCl [mol/dm$^3$] & 0.21 \\ 
+   \hline
+\end{tabular}
+\label{tab:nested_cv}
+\end{table}
+
+\end{frame}  
+
+
+
+\begin{frame}{Summary}
 \begin{enumerate}
-\item Stworzono algorytm efektywnie selekcjonujący informatywne n-gramy 
-reprezentujące sekwencje aminokwasowe.
+\item Created algorithms effectively filtering n-grams.
 
-\item Opracowano metody poszukujące uproszczone 
-alfabety aminokwasowe.
+\item Introduced new methods for search of simplified amino acids.
 
-\item Opracowaną metodologię zastosowano do przewidywania białek 
-amyloidogennych tworząc pakiet \textbf{R} i web server AmyloGram (\url{http://www.smorfland.uni.wroc.pl/shiny/AmyloGram/}).
+\item Implemented novel algorithms in the \textbf{R} package \textit{AmyloGram}.
 
+\item Applied the n-gram analysis framework to:
+\begin{itemize}
+\item prediction of amyloids (AmyloGram),
+\item prediction of atypical signal peptides,
+\item prediction of culture conditions of methanogenes (MethanoGram).
+\end{itemize}
 \end{enumerate}
 \end{frame}  
 
-\begin{frame}{Perspektywy}
+\begin{frame}{Summary}
+
+Web servers:
+\begin{itemize}
+\item \textbf{AmyloGram}: \url{http://www.smorfland.uni.wroc.pl/shiny/AmyloGram/}.
+\item \textbf{MethanoGram}: \url{http://www.smorfland.uni.wroc.pl/shiny/MethanoGram/}.
+\item \textbf{signalHsmm}: \url{http://www.smorfland.uni.wroc.pl/shiny/signalHsmm/}.
+\end{itemize}
+
+
+Software packages:
+\begin{itemize}
+\item \textbf{biogram}: \url{https://cran.r-project.org/package=biogram}.
+\item \textbf{AmyloGram}: \url{https://cran.r-project.org/package=AmyloGram}.
+\end{itemize}
+
+
+\end{frame}  
+
+\begin{frame}{Acknowledgments}
+Mentors:
+\begin{itemize}
+\item \textbf{Paweł Mackiewicz (University of Wrocław)}.
+\item Lars Kaderali (University of Greifswald).
+\item Małgorzata Kotulska (Wrocław University of Science and Technology).
+\item Marcin Łukaszewicz (University of Wrocław).
+\item Henrik Nielsen (Technical University of Denmark).
+\item Stefan Rödiger (Brandenburg University of Technology Cottbus-Senftenberg).
+\item Andreas Weinhäusel (Austrian Institute of Technology).
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Acknowledgments}
+Peers:
+\begin{itemize}
+\item Agata Błaszczyńska (Wrocław University of Science and Technology).
+\item Anna Duda-Madej (Wrocław Medical University).
+\item Przemysław Gagat (University of Wrocław).
+\item Marlena Gąsior-Głogowska (Wrocław University of Science and Technology).
+\item Sławomir Jabłoński (University of Wrocław).
+\item Rafał Kolenda (Sanger Institute).
+\item Chris Lauber (Technical University Dresden).
+\item Natalia Niedzielska (Wrocław University of Science and Technology).
+\item Piotr Sobczyk (Wrocław University of Science and Technology).
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Acknowledgments}
+Funding:
+\begin{itemize}
+\item National Science Center (Preludium and Etiuda).
+\item COST ACTION CA15110 (Harmonising standardisation strategies to increase efficiency and competitiveness of European life-science research).
+\item KNOW Wrocław Center for Biotechnology.
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}{Summary}
 \begin{enumerate}
-\item Zastosowanie opracowanej metodologii do przewidywania lokalizacji 
-subkomórkowej białek.
+\item Created a new algorithm for effective filtering of n-grams.
 
-\item Stworzenie oprogramowania wspierającego interpretowanie wyników analizy n-gramów i uproszczonych alfabetów.
+\item Introduced new methods for search of simplified amino acids.
 
-\item Upublicznienie rozwijanych metod w postaci pakietu \textit{biogram} w środowisku programistycznym i statystycznym \textbf{R}.
+\item Implemented novel algorithms in the \textbf{R} package \textit{AmyloGram}.
 
+\item Applied the n-gram analysis framework to:
+\begin{itemize}
+\item prediction of amyloids (AmyloGram),
+\item prediction of atypical signal peptides,
+\item prediction of culture conditions of methanogenes (MethanoGram).
+\end{itemize}
 \end{enumerate}
 \end{frame}  
+
 
 \begin{frame}[allowframebreaks]
         \frametitle{References}
@@ -920,6 +970,76 @@ subkomórkowej białek.
   \bibliography{references}
 \end{frame}  
 
+\begin{frame}{Ranking alphabets}
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
+
+set.seed(3)
+exdat <- data.frame(
+  alph = paste0("A", 1L:5), 
+  c1 = 0.7 + runif(5)/5,
+  c2 = 0.75 + runif(5)/5,
+  c3 = 0.65 + runif(5)/5
+) %>% 
+  melt %>% 
+  group_by(variable) %>% 
+  mutate(r = rank(value)) %>% 
+  ungroup
+
+best_alph <- group_by(exdat, alph) %>%
+  summarise(cr = sum(r)) %>%
+  arrange(desc(cr)) %>% 
+  slice(1) %>% 
+  select(alph) %>% 
+  unlist %>% 
+  as.character
+
+exdat <- mutate(exdat, best = alph == best_alph)
+
+ggplot(exdat, aes(y = variable, x = value, color = alph)) +
+  geom_point(size = 4) +
+  scale_x_continuous("AUC") +
+  scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
+  scale_color_discrete("Alphabet") +
+  my_theme
+
+@
+\end{frame}
+
+
+\begin{frame}{Ranking alphabets}
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
+ggplot(exdat, aes(y = variable, x = value, color = alph, label = (r - 6)*-1)) +
+  geom_text(size = 4) +
+  scale_x_continuous("AUC") +
+  scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
+  scale_color_discrete("Alphabet") +
+  scale_shape_discrete("Best simplified alphabet") +
+  my_theme
+
+
+@
+We rank alphabets separately in all length categories assuming the rank 1 for the best AUC, rank 2 for the second best AUC and so on.
+
+
+\end{frame}
+
+
+
+\begin{frame}{Ranking alphabets}
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
+ggplot(exdat, aes(y = variable, x = value, color = alph, shape = best)) +
+  geom_point(size = 4) +
+  scale_x_continuous("AUC") +
+  scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
+  scale_color_discrete("Alphabet") +
+  scale_shape_discrete("Best simplified alphabet") +
+  my_theme
+
+
+@
+The best-performing alphabet has the lowest sum of ranks.  
+
+\end{frame}
 
 
 \end{document}

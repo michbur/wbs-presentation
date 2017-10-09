@@ -182,7 +182,19 @@ plot_pca(pca_full)
 PCA of amino acid frequency in signal peptides.
 \end{frame}  
 
-\begin{frame}{n-grams}
+\section{n-grams}
+
+\begin{frame}
+Computational analysis of biological sequences requires converting them to features understanable by machines.
+
+The optimal covertion of information:
+\begin{itemize}
+\item lossless,
+\item concise.
+\end{itemize}
+\end{frame}  
+
+\begin{frame}
 n-grams (k-tuples, k-mers):
 \begin{itemize}
 \item subsequences (continuous or gapped) of $n$ residues,
@@ -245,7 +257,7 @@ seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 3, aa_v, d = 0) %>%
 @
 \end{frame}  
 
-\begin{frame}{n-grams}  
+\begin{frame}
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
 L <- 5
 m <- 20 
@@ -271,7 +283,33 @@ ggplot(dat, aes(x = n, y = n_max, color = m, label = formatC(n_max, digits = 4))
 n-grams create very large datasets, which are hard to process and analyze.
 \end{frame}
 
-\begin{frame}{Quick Permutation Test}
+\begin{frame}
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
+L <- 5
+m <- 20 
+m2 <- 6
+n <- 1:5
+n_max <- L*m^n
+n_max2 <- L*m2^n
+#dat <- data.frame(n = c(n, n), n_max = c(n_max, n_max2), m = c(rep(m, 5), rep(m2, 5)))
+dat <- data.frame(n = n, n_max = n_max, m = rep(m, 5))
+dat[["m"]] <- factor(dat[["m"]])
+
+ggplot(dat, aes(x = n, y = n_max, color = m, label = formatC(n_max, digits = 4))) + 
+  geom_line(linetype="dotted", size=1.5) + 
+  geom_point(size=4, shape=16) +
+  geom_text(size = 4, vjust = -1.5, hjust = "inward", color = "red") +
+  coord_cartesian(ylim = c(1, 4.5e7)) +
+  scale_x_continuous("n", breaks = 0L:5) +
+  scale_y_continuous("Total number of n-grams (log-scale)",
+                     trans = "log10") +
+  scale_color_discrete("Alphabet size") +
+  my_theme
+@
+Longer n-grams are more informative, but create larger feature spaces.
+\end{frame}
+
+\begin{frame}{Permutation Tests}
   Informative n-grams are usually selected using permutation tests.
 
 During a permutation test we shuffle randomly class labels and compute a defined statistic (e.g. information gain). Values of statistic for permuted data are compared with the value of statistic for original data.
@@ -366,7 +404,7 @@ seq_dat <- rbind(data.frame(seq = "Sequence I", pos = 1L:10,
 
 ggplot(seq_dat, aes(x = factor(pos), y = val, label = toupper(aa), 
                     group = seq, colour = hydroph)) +
-  geom_text(vjust = "outward", size = 5, show_guide = FALSE) +
+  geom_text(vjust = "outward", size = 3, show_guide = FALSE) +
   #geom_point(size = 0) +
   geom_line(linetype = "dotted", color = "black") +
   facet_wrap(~ seq, ncol = 1) +
@@ -421,17 +459,23 @@ PCA of amino acid frequency in signal peptides.
 \section{Prediction of amyloidogenicity}
 
 \begin{frame}{AmyloGram}
-AmyloGram: oparte o redukcję alfabetów i kodowanie n-gramowe narzędzie do predykcji białek amyloidogennych~\citep{burdukiewicz_prediction_2016}.
+AmyloGram: n-gram based tool for prediction of amyloid proteins~\citep{burdukiewicz_prediction_2016}.
 \end{frame}
 
 
+    \begin{frame}
+\begin{figure} 
+\includegraphics[width=0.95\textwidth]{static_figure/ngram1.eps}
+\end{figure}
+  \end{frame}
+
 \begin{frame}{Cross-validation}
-  <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+  <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 
 ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
-  geom_boxplot(outlier.color = NA, outlier.shape = 16, outlier.size = 5, color = NA, fill = NA) +
+  geom_boxplot(outlier.color = NA, outlier.shape = 16, outlier.size = 3, color = NA, fill = NA) +
   geom_point(data = filter(subdat, et == "Full alphabet"), 
-             aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 5) +
+             aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 3) +
   scale_x_discrete("") +
   scale_y_continuous("Mean AUC") +
   scale_shape_manual("", values = c(16, 16, 15, 15)[3], drop = TRUE) +
@@ -464,11 +508,11 @@ To date, several simplified amino acid alphabets have been proposed, which have 
 
 
     \begin{frame}{Cross-validation}
-  <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+  <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
-  geom_boxplot(outlier.color = NA, outlier.shape = 16, outlier.size = 5, color = NA, fill = NA) +
+  geom_boxplot(outlier.color = NA, outlier.shape = 16, outlier.size = 3, color = NA, fill = NA) +
   geom_point(data = filter(subdat, et %in% c("Full alphabet", "Standard simplified alphabet")), 
-             aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 5) +
+             aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 3) +
   scale_x_discrete("") +
   scale_y_continuous("Mean AUC") +
   scale_shape_manual("", values = c(16, 16, 15, 15)[3L:4], drop = TRUE) +
@@ -511,13 +555,13 @@ Standard simplified amino acid alphabets do not enhance discrimination between a
 
 
 \begin{frame}{Cross-validation}
-  <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+  <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 subdat2 <- droplevels(filter(subdat, et != "Best-performing simplified alphabet"))
 
 ggplot(subdat2, aes(x = len_range, y = AUC_mean)) +
-  geom_boxplot(outlier.color = "grey", outlier.shape = 16, outlier.size = 5, color = "black", fill = "white") +
+  geom_boxplot(outlier.color = "grey", outlier.shape = 16, outlier.size = 3, color = "black", fill = "white") +
   geom_point(data = filter(subdat2, et %in% c("Full alphabet", "Standard simplified alphabet")), 
-             aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 5) +
+             aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 3) +
   scale_x_discrete("") +
   scale_y_continuous("Mean AUC") +
   scale_shape_manual("", values = c(16, 16, 15, 15)[2L:4], drop = FALSE) +
@@ -529,7 +573,7 @@ ggplot(subdat2, aes(x = len_range, y = AUC_mean)) +
   coord_flip()
 
 @
-  \tiny
+  \small
 Hinges of boxes correspond to 
 the 0.25 and 0.75 quartiles. The bar inside the box represents the median. The 
 gray circles correspond to the simplified alphabets with the AUC outside the 0.95 
@@ -539,7 +583,7 @@ confidence interval.
   \end{frame}
 
 \begin{frame}{Ranking alphabets}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 
 set.seed(3)
 exdat <- data.frame(
@@ -564,7 +608,7 @@ best_alph <- group_by(exdat, alph) %>%
 exdat <- mutate(exdat, best = alph == best_alph)
 
 ggplot(exdat, aes(y = variable, x = value, color = alph)) +
-  geom_point(size = 7) +
+  geom_point(size = 4) +
   scale_x_continuous("AUC") +
   scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
   scale_color_discrete("Alphabet") +
@@ -575,9 +619,9 @@ ggplot(exdat, aes(y = variable, x = value, color = alph)) +
 
 
 \begin{frame}{Ranking alphabets}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 ggplot(exdat, aes(y = variable, x = value, color = alph, label = (r - 6)*-1)) +
-  geom_text(size = 7) +
+  geom_text(size = 4) +
   scale_x_continuous("AUC") +
   scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
   scale_color_discrete("Alphabet") +
@@ -594,9 +638,9 @@ We rank alphabets separately in all length categories assuming the rank 1 for th
 
 
 \begin{frame}{Ranking alphabets}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 ggplot(exdat, aes(y = variable, x = value, color = alph, shape = best)) +
-  geom_point(size = 7) +
+  geom_point(size = 4) +
   scale_x_continuous("AUC") +
   scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
   scale_color_discrete("Alphabet") +
@@ -611,12 +655,12 @@ The best-performing alphabet has the lowest sum of ranks.
 
   
     \begin{frame}{The best-perfoming simplified alphabet}
-  <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+  <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 
 ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
-  geom_boxplot(outlier.color = "grey", outlier.shape = 16, outlier.size = 5) +
+  geom_boxplot(outlier.color = "grey", outlier.shape = 16, outlier.size = 3) +
   geom_point(data = filter(subdat, et != "simplified alphabet"), 
-             aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 5) +
+             aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 3) +
   scale_x_discrete("") +
   scale_y_continuous("Mean AUC") +
   scale_shape_manual("", values = c(16, 16, 15, 15), drop = FALSE) +
@@ -630,7 +674,7 @@ ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
   \end{frame}
 
      \begin{frame}{The best-perfoming simplified alphabet}
-   <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.width=14,fig.height=7>>=
+   <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 # cat(group2df(best_enc, caption = "The best-performing simplified alphabet."))
  @
    \begin{table}[ht]
@@ -693,14 +737,76 @@ Group 2 - charged breakers of $\beta$-structures.
    
    \end{frame}  
    
-\begin{frame}{Porównanie z innymi klasyfikatorami}
+\begin{frame}{Alphabet similarity and performance}
+Is the best-performing simplified amino alphabet associated with amyloidogenicity?
+\end{frame}
+
+\begin{frame}{Similarity index}
+<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
+si_dat <- read.csv2("si_dat.csv")
+
+levels(si_dat[["et"]]) <- c("Best-performing simplified alphabet", 
+                            "Simplified alphabet", "Full alphabet", 
+                            "Standard simplified alphabet", 
+                            "Standard simplified alphabet")
+
+
+simil_plot <- ggplot(si_dat, aes(x=si, y=AUC_mean)) + 
+  # geom_point(data = si_dat, 
+  #            aes(x = si, y = AUC_mean, color = et, shape = et), size = 4) +
+  #geom_density_2d(color = "black", contour = TRUE) +
+    geom_bin2d(bins = 30) +
+  # stat_density2d(aes(fill=..level..), color = "black",
+  #                contour = TRUE, geom = "polygon", alpha = 0.5, binwidth = 50, bins = 10) +
+  scale_fill_continuous("Count", low = "gold", high = "goldenrod4") +
+  xlab("Similarity index") +
+  ylab("AUC") +
+  my_theme +
+  geom_point(data = droplevels(filter(si_dat, et != "Simplified alphabet")),
+             aes(x = si, y = AUC_mean, color = et, shape = et), size = 4) +
+  guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2), 
+         fill = guide_colorbar(barwidth = unit(5, "line"))) +
+  scale_shape_manual("", values = c(16, 15, 15), drop = FALSE) +
+  scale_color_manual("", values = c("red", "green", "blue"), drop = FALSE) +
+  theme(panel.grid.major = element_line(color = "lightgrey", size = 0.5)) 
+
+print(simil_plot)
+@
+Similarity index~\citep{stephenson_unearthing_2013} measures the similarity between two simplified alphabets (1 - identical, 0, totally dissimilar).
+\end{frame}
+
+
+\begin{frame}{Similarity index}
+<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
+print(simil_plot)
+@
+AUC (Area Under the Curve) measures the performance of a classifier (1 - classifier always properly recognizes amyloid proteins, 0 - classifier never properly recognizes amyloid proteins).
+\end{frame}
+
+\begin{frame}{Similarity index}
+<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
+print(simil_plot)
+@
+The color of a square is proportional to the number of simplified alphabets in its area.
+\end{frame}
+
+\begin{frame}{Similarity index}
+<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
+print(simil_plot)
+@
+The correlation between mean AUC an similarity index is significant ($\textrm{p-value} \leq 2.2^{-16}$; $\rho = 0.51$).
+\end{frame}
+   
+
+
+\begin{frame}{Benchmark results}
 
 \begin{table}[ht]
 \centering
 
 \begin{tabular}{ccccc}
   \toprule
-Klasyfikator & AUC & MCC \\ 
+Classifier & AUC & MCC \\ 
   \midrule
 AmyloGram & \textbf{0.8972} & \textbf{0.6307} \\ 
   \rowcolor{white}PASTA 2.0 \citep{walsh_pasta_2014} & 0.8550 & 0.4291  \\ 
@@ -710,22 +816,41 @@ AmyloGram & \textbf{0.8972} & \textbf{0.6307} \\
 \end{tabular}
 \end{table}
 
-AUC (Area Under the Curve): miara jakości predykcji (1: idealny dobry klasyfikator, 0: idealnie zły klasyfikator).
-
-MCC (Matthew's Correlation Coefficient): miara jakości predykcji (1: idealny dobry klasyfikator, -1: idealnie zły klasyfikator).
+The predictor based on the best-performing alphabet, called AmyloGram, was benchmarked against the most popular tools for the detection of amyloid peptides using an external data set \textit{pep424}.
 
 \footnotesize
 
-AmyloGram porównano z innymi klasyfikatorami na zewnętrznym zbiorze danych \textit{pep424}.
+\end{frame}
+
+\begin{frame}{Benchmark results}
+
+\begin{table}[ht]
+\centering
+
+\begin{tabular}{ccccc}
+  \toprule
+Classifier & AUC & MCC \\ 
+  \midrule
+AmyloGram & \textbf{0.8972} & \textbf{0.6307} \\ 
+  \rowcolor{white}PASTA 2.0 \citep{walsh_pasta_2014} & 0.8550 & 0.4291  \\ 
+   FoldAmyloid \citep{garbuzynskiy_foldamyloid:_2010} & 0.7351 & 0.4526  \\ 
+  \rowcolor{white}APPNN \citep{familia_prediction_2015} & 0.8343 & 0.5823  \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+
+MCC (Matthew's Correlation Coefficient) measures the performance of a classifier (1 - classifier always properly recognizes amyloid proteins, -1 - classifier never properly recognizes amyloid proteins).
+
+\footnotesize
+
 \end{frame}
 
 
-\begin{frame}{Walidacja eksperymentalna}
-\begin{enumerate}
-\item Wszystkie nieamyloidowe peptydy z bazy AmyLoad zanalizowano AmyloGramem. 
-\item Wybrano 8 peptydów z najwyższym prawdopodobieństwem amyloidogenności.
-\item Peptydy zbadano przy pomocy spektroskopii fourierowskiej (FTIR).
-\item Wyniki potwierdzono esejami z czerwienią Kongo i tioflawiną.
+\begin{frame}{Experimental validation}
+
+All non-amyloid peptides from AmyLoad database were analyzed \textit{in silico} using AmyloGram. 
+8 non-amyloid peptides with the larged probability of being amyloids (as assessed by AmyloGram), were analyzed in FTIR experiments.
+Results were confirmed with Congo Red and thioflavin T assays.
 \end{enumerate}
 \end{frame}
 

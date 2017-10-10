@@ -92,19 +92,32 @@ names(best_enc) <- 1L:6
 
 \maketitle
 
+\begin{frame}{Outline}
+
+\tableofcontents
+
+\end{frame} 
+
 \begin{frame}{} 
 
-\textit{In silico} research allows scientists to more efficiently design experimentl studies.
+\textit{In silico} research allows scientists to more efficiently design experimental studies.
 
 Examples: 
 
 \begin{itemize}
 \item prediction of protein properties (presence of signal peptides, amyloidogenicity),  
-\item predicting culture conditions.
+\item predicting culture conditions of bacteria.
 \end{itemize}
 
 \end{frame}   
   
+\begin{frame}{Aim} 
+
+Create efficient methods for analysis of biological sequences that have human-readable decision rules.
+
+\end{frame}   
+
+
 \begin{frame}{Amyloid proteins}
 
 Amyloid are proteins associated with various diseases (e.g., Alzheimer’s,
@@ -185,11 +198,11 @@ PCA of amino acid frequency in signal peptides.
 \section{n-grams}
 
 \begin{frame}
-Computational analysis of biological sequences requires converting them to features understanable by machines.
+Computational analysis of biological sequences requires converting them to features understandable by machines.
 
-The optimal covertion of information:
+The optimal conversion of information:
 \begin{itemize}
-\item lossless,
+\item loss-less,
 \item concise.
 \end{itemize}
 \end{frame}  
@@ -257,31 +270,7 @@ seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 3, aa_v, d = 0) %>%
 @
 \end{frame}  
 
-\begin{frame}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
-L <- 5
-m <- 20 
-m2 <- 6
-n <- 1:5
-n_max <- L*m^n
-n_max2 <- L*m2^n
-#dat <- data.frame(n = c(n, n), n_max = c(n_max, n_max2), m = c(rep(m, 5), rep(m2, 5)))
-dat <- data.frame(n = n, n_max = n_max, m = rep(m, 5))
-dat[["m"]] <- factor(dat[["m"]])
 
-ggplot(dat, aes(x = n, y = n_max, color = m, label = formatC(n_max, digits = 4))) + 
-  geom_line(linetype="dotted", size=1.5) + 
-  geom_point(size=4, shape=16) +
-  geom_text(size = 4, vjust = -1.5, hjust = "inward", color = "red") +
-  coord_cartesian(ylim = c(1, 4.5e7)) +
-  scale_x_continuous("n", breaks = 0L:5) +
-  scale_y_continuous("Total number of n-grams (log-scale)",
-                     trans = "log10") +
-  scale_color_discrete("Alphabet size") +
-  my_theme
-@
-n-grams create very large datasets, which are hard to process and analyze.
-\end{frame}
 
 \begin{frame}
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
@@ -306,7 +295,7 @@ ggplot(dat, aes(x = n, y = n_max, color = m, label = formatC(n_max, digits = 4))
   scale_color_discrete("Alphabet size") +
   my_theme
 @
-Longer n-grams are more informative, but create larger feature spaces.
+Longer n-grams are more informative, but create larger feature spaces, which are hard to process and analyze.
 \end{frame}
 
 \begin{frame}{Permutation Tests}
@@ -321,13 +310,6 @@ $N_{T_P > T_R}$: number of cases, where $T_P$ (permuted test statistic) has more
 
 $N$: number of permutations.
   \end{frame}
-  
-\begin{frame}{QuiPT}  
-  
-  \textbf{Qui}ck \textbf{P}ermutation \textbf{T}est is a fast alternative to permutation tests for n-gram data. It also allows precise estimation of p-value.
-
-QuiPT is avaible as part of the \textbf{biogram} R package.
-\end{frame}
 
 \begin{frame}{QuiPT}  
 
@@ -357,7 +339,7 @@ ggplot(times_dat, aes(x = size, y = value, color = variable)) +
   my_theme
 @
 
-QuiPT is faster than classical permutation tests and returns exact p-values.
+QuiPT (available as part of the \textbf{biogram} R package) is faster than classical permutation tests and returns exact p-values.
 \end{frame}
 
 \section{Simplified alphabets}
@@ -367,7 +349,7 @@ Simplified alphabets:
 \begin{itemize}
 \item are based on grouping amino acids with similar physicochemical properties,
 \item ease computational analysis of a sequence~\citep{murphy_simplified_2000},
-\item create more interpretable models.
+\item create more explicite models.
 \end{itemize}
 \end{frame}
 
@@ -404,7 +386,7 @@ seq_dat <- rbind(data.frame(seq = "Sequence I", pos = 1L:10,
 
 ggplot(seq_dat, aes(x = factor(pos), y = val, label = toupper(aa), 
                     group = seq, colour = hydroph)) +
-  geom_text(vjust = "outward", size = 3, show_guide = FALSE) +
+  geom_text(vjust = "outward", size = 4, show_guide = FALSE) +
   #geom_point(size = 0) +
   geom_line(linetype = "dotted", color = "black") +
   facet_wrap(~ seq, ncol = 1) +
@@ -446,15 +428,7 @@ Sequence II: \texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}} \textrightarr
 \end{columns}
 \end{frame}  
 
-\begin{frame}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
-grid.arrange(plot_pca(pca_full) + ggtitle("Full alphabet"),
-             plot_pca(pca_naive) + ggtitle("Simplified alphabet"),
-             ncol = 2)
-@
-PCA of amino acid frequency in signal peptides.
 
-\end{frame}  
 
 \section{Prediction of amyloidogenicity}
 
@@ -586,7 +560,7 @@ confidence interval.
 
 
   
-    \begin{frame}{The best-perfoming simplified alphabet}
+    \begin{frame}{The best-performing simplified alphabet}
   <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 
 ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
@@ -605,7 +579,7 @@ ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
 @
   \end{frame}
 
-     \begin{frame}{The best-perfoming simplified alphabet}
+     \begin{frame}{The best-performing simplified alphabet}
    <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 # cat(group2df(best_enc, caption = "The best-performing simplified alphabet."))
  @
@@ -627,7 +601,7 @@ Subgroup ID & Amino acids \\
    
    \end{frame}
 
-     \begin{frame}{The best-perfoming simplified alphabet}
+     \begin{frame}{The best-performing simplified alphabet}
    \begin{table}[ht]
 \centering
 \begin{tabular}{rl}
@@ -648,7 +622,7 @@ Group 3 and 4 - hydrophobic amino acids.
    \end{frame}
   
   
-     \begin{frame}{The best-perfoming simplified alphabet}
+     \begin{frame}{The best-performing simplified alphabet}
    \begin{table}[ht]
 \centering
 \begin{tabular}{rl}
@@ -723,6 +697,39 @@ print(simil_plot)
 The correlation between mean AUC an similarity index is significant ($\textrm{p-value} \leq 2.2^{-16}$; $\rho = 0.51$).
 \end{frame}
    
+\begin{frame}{}
+Are informative n-grams found by QuiPT associated with amyloidogenicity?
+\end{frame}
+
+
+\begin{frame}{Informative n-grams}
+<<echo = FALSE,message=FALSE,fig.align='center',fig.width=14,fig.height=6,warning=FALSE>>=
+ngram_freq <- read.csv("ngram_freq.csv")
+
+ngram_freq_plot <- mutate(ngram_freq, decoded_name = gsub("_", "-", decoded_name)) %>%
+  mutate(decoded_name = factor(decoded_name, levels = as.character(decoded_name)),
+         amyloid = diff_freq > 0) %>%
+  melt() %>%
+  filter(variable %in% c("pos", "neg"),
+         association != "Not found") %>%
+  droplevels %>%
+  mutate(variable = factor(variable, labels = c("Amyloid", "Non-amyloid")))
+
+ggplot(ngram_freq_plot, aes(x = decoded_name, y = value)) +
+  geom_bar(aes(fill = variable), position = "dodge", stat = "identity") +
+  geom_point(data = group_by(ngram_freq_plot, decoded_name)  %>% filter(value == max(value)),
+             aes(y = value + 0.004, shape = association), size = 6) +
+  scale_fill_manual("", values = c("gold", "darkmagenta")) +
+  scale_shape_manual("Motif:", breaks = c("Amyloidogenic", "Non-amyloidogenic"), values = c(16, 17, NA)) +
+  scale_y_continuous("Frequency") +
+  scale_x_discrete("") +
+  my_theme +
+  theme(panel.grid.major.y = element_line(color = "lightgrey", size = 0.5)) 
+
+@
+
+Out of 65 the most informative n-grams, 15 (23\%) were also found in the motifs validated experimentally~\citep{paz_sequence_2004}.
+\end{frame}
 
 
 \begin{frame}{Benchmark results}
@@ -786,6 +793,17 @@ MCC (Matthew's Correlation Coefficient) measures the performance of a classifier
 \end{frame}
 
 \section{Other applications}
+
+\begin{frame}{Signal peptide prediction}
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
+grid.arrange(plot_pca(pca_full) + ggtitle("Full alphabet"),
+             plot_pca(pca_naive) + ggtitle("Simplified alphabet"),
+             ncol = 2)
+@
+PCA of amino acid frequency in signal peptides.
+
+\end{frame}  
+
 
 \begin{frame}{Signal peptide prediction}
 \begin{figure} 
@@ -874,11 +892,11 @@ Optimal growth NaCl [mol/dm$^3$] & 0.21 \\
 
 \item Introduced new methods for search of simplified amino acids.
 
-\item Implemented novel algorithms in the \textbf{R} package \textit{AmyloGram}.
+\item Implemented novel algorithms in the \textbf{R} package \textit{biogram}.
 
 \item Applied the n-gram analysis framework to:
 \begin{itemize}
-\item prediction of amyloids (AmyloGram),
+\item prediction of amyloids (AmyloGram) (to appear in Scientific Reports),
 \item prediction of atypical signal peptides,
 \item prediction of culture conditions of methanogenes (MethanoGram).
 \end{itemize}
@@ -924,7 +942,7 @@ Peers:
 \item Agata Błaszczyńska (Wrocław University of Science and Technology).
 \item Anna Duda-Madej (Wrocław Medical University).
 \item Przemysław Gagat (University of Wrocław).
-\item Marlena Gąsior-Głogowska (Wrocław University of Science and Technology).
+\item Marlena G\k{a}sior-Głogowska (Wrocław University of Science and Technology).
 \item Sławomir Jabłoński (University of Wrocław).
 \item Rafał Kolenda (Sanger Institute).
 \item Chris Lauber (Technical University Dresden).
@@ -944,7 +962,32 @@ Funding:
 
 \end{frame}
 
+\begin{frame}[allowframebreaks]{Publications}
 
+\small
+\begin{enumerate}
+\item \textbf{Burdukiewicz, M.}, Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports (accepted).
+
+\item Rödiger, S., \textbf{Burdukiewicz, M.}, Spiess, A.-N., and Blagodatskikh, K. (2017). Enabling reproducible real-time quantitative PCR research: the RDML package. Bioinformatics.
+
+\item Schiebel, J., Böhm, A., Nitschke, J., \textbf{Burdukiewicz, M.}, Weinreich, J., Ali, A., Roggenbuck, D., Rödiger, S., and Schierack, P. (2017). Genotypic and phenotypic characteristics in association with biofilm formation in different pathotypes of human clinical Escherichia coli isolates. Appl. Environ. Microbiol. AEM.01660-17.
+
+\item \textbf{Burdukiewicz, M.}, Rödiger, S., Sobczyk, P., Menschikowski, M., Schierack, P., and Mackiewicz, P. (2016a). Methods for comparing multiple digital PCR experiments. Biomolecular Detection and Quantification 9, 14–19.
+
+\item \textbf{Burdukiewicz, M.}, Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2016b). Prediction of amyloidogenicity based on the n-gram analysis. PeerJ Preprints.
+
+\item Spiess, A.-N., Rödiger, S., \textbf{Burdukiewicz, M.}, Volksdorf, T., and Tellinghuisen, J. (2016). System-specific periodicity in quantitative real-time polymerase chain reaction data questions threshold-based quantitation. Scientific Reports.
+
+\item Rödiger, S., \textbf{Burdukiewicz, M.}, Blagodatskikh, K., Jahn M., and Schierack, P. (2016). R as an Environment for Reproducible Analysis of DNA Amplification Experiments (R Journal).
+
+\item Rödiger, S., \textbf{Burdukiewicz, M.}, and Schierack, P. (2015). chipPCR: an R package to pre-process raw data of amplification curves. Bioinformatics 31, 2900–2902.
+
+\item Spiess, A.-N., Deutschmann, C., \textbf{Burdukiewicz, M.}, Himmelreich, R., Klat, K., Schierack, P., and Rödiger, S. (2015). Impact of Smoothing on Parameter Estimation in Quantitative DNA Amplification Experiments. Clinical Chemistry 61, 379–388.
+
+\item Kolenda, R., \textbf{Burdukiewicz, M.}, and Schierack, P. (2015). A systematic review and meta-analysis of the epidemiology of pathogenic Escherichia coli of calves and the role of calves as reservoirs for human pathogenic E. coli. Frontiers in Cellular and Infection Microbiology 5.
+\end{enumerate}
+
+\end{frame}
 
 \begin{frame}{Summary}
 \begin{enumerate}

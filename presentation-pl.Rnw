@@ -15,12 +15,7 @@
 \title{Przewidywanie właściwości sekwencji biologicznych w oparciu o analizę n-gramów}
 \date{}
 \author{Michał Burdukiewicz}
-\institute{Zakład Bioinformatyki i Genomiki, Uniwersytet Wrocławski \\
-\begin{flushright}
-Promotor pracy: prof. dr hab. Paweł Mackiewicz \\
-Promotor pomocniczy: dr Paweł Błażej
-\end{flushright}
-}
+\institute{Zakład Genomiki i Bioinformatyki, Uniwersytet Wrocławski}
 
 \begin{document}
 
@@ -97,7 +92,7 @@ names(best_enc) <- 1L:6
 
 \maketitle
 
-\begin{frame}{Plan prezentacji}
+\begin{frame}{Przedmiot pracy}
 
 \tableofcontents
 
@@ -105,56 +100,175 @@ names(best_enc) <- 1L:6
 
 \begin{frame}{} 
 
-Badania \textit{In silico} pozwalają efektywniej planować prace eksperymentalne.
+\textit{In silico} research allows scientists to more efficiently design experimental studies.
 
-Przykłady: 
+Examples: 
 
 \begin{itemize}
-\item przewidywanie właściwości białek (np. obecność sekwencji sygnałowych, amyloidogenność),  
-\item przewidywanie warunków hodowlanych mikroorganizmów.
+\item prediction of protein properties (presence of signal peptides, amyloidogenicity),  
+\item predicting culture conditions of bacteria.
 \end{itemize}
 
 \end{frame}   
   
-\begin{frame}{Cel} 
+\begin{frame}{Aim} 
 
-Opracowanie metodologii analizy sekwencji biologicznych opierającej się na zrozumiałych dla człowieka regułach decyzyjnych. 
+Create efficient methods for analysis of biological sequences that have human-readable decision rules.
 
 \end{frame}   
 
-\section{n-gramy i uproszczone alfabety}
+
+\begin{frame}{Amyloid proteins}
+
+Amyloid are proteins associated with various diseases (e.g., Alzheimer’s,
+Creutzfeldt-Jakob’s and Huntington’s diseases) which are able to form harmful aggregates.
+
+\begin{figure} 
+\includegraphics[width=0.61\textwidth]{static_figure/amyloid_aggregates.jpg}
+\end{figure}
+
+\footnotesize
+Amyloid aggregates (red) around neurons (green). Strittmatter Laboratory, Yale University.
+
+\end{frame}  
+
+  
+\begin{frame}{Amyloid proteins}
+
+Hot-spots:
+\begin{itemize}
+\item short (6-15 amino acids),
+\item very high variability of amino acid composition,
+\item initiate amyloid aggregation,
+\item create specific "zipper-like" $\beta$-structures.
+\end{itemize}
+
+\begin{figure} 
+\includegraphics[width=0.9\textwidth]{static_figure/zipper_structure.jpg}
+\end{figure}
+
+\footnotesize\citet{sawaya_atomic_2007}
+\end{frame}
+  
+\begin{frame}{Signal peptides}
+
+\begin{figure} 
+\includegraphics[width=0.75\textwidth]{static_figure/SP.png}
+\end{figure}
+
+Signal peptides:
+        \begin{itemize}[<+->]
+          \item are short (20-30 residues) N-terminal amino acid sequences forming $\alpha$-helices,
+            \item direct proteins to the endomembrane system and next to extra- or intracellular localizations,
+            \item are universal enough to direct properly proteins in different secretory systems.
+        \end{itemize}
+\end{frame}
+
+
+  
+\begin{frame}{Signal peptides}
+
+\begin{figure} 
+\includegraphics[width=0.75\textwidth]{static_figure/SP.png}
+\end{figure}
+
+Signal peptides possess three distinct domains with variable length and characteristic amino acid composition~\citep{hegde_surprising_2006}:
+      \begin{itemize}
+        \item n-region: mostly basic residues~\citep{nielsen_prediction_1998},
+        \item h-region: strongly hydrophobic residues~\citep{nielsen_prediction_1998},
+        \item c-region: a few polar, uncharged residues.
+      \end{itemize}
+\end{frame}
+
+
+%Peptydy sygnałowe rozpoczynają się naładowanym dodatnio n-regionem, po którym występuje hydrofobowy h-region i c-region zakończony miejscem cięcia rozpoznawanym przez peptydazę sygnałową. 
+
+  
+\begin{frame}{Signal peptides}  
+Amino acid composition of signal peptides differ between Plasmodium sp. and other eukaryotes. Therefore, predictors of signal peptides do not detect malarial signal peptides accurately.
+
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4,results='asis'>>=
+plot_pca(pca_full)
+  #ggtitle("PCA częstości aminokwasów w peptydach sygnałowych")
+@  
+
+PCA of amino acid frequency in signal peptides.
+\end{frame}  
+
+\section{n-grams}
 
 \begin{frame}
-n-gramy (k-tuple, k-mery):
+Computational analysis of biological sequences requires converting them to features understandable by machines.
+
+The optimal conversion of information:
 \begin{itemize}
-\item podsekwencje (ciągłe lub z przerwami) $n$ reszt aminokwasowych lub nukleotydowych,
-\item bardziej informatywne niż pojedyncze reszty.
+\item loss-less,
+\item concise.
 \end{itemize}
 \end{frame}  
 
 \begin{frame}
+n-grams (k-tuples, k-mers):
+\begin{itemize}
+\item subsequences (continuous or gapped) of $n$ residues,
+\item considers the context of a specific residue.
+\end{itemize}
 
-\begin{table}[ht]
-\begin{tabular}{rllllllllll}
-  \hline
- & P1 & P2 & P3 & P4 & P5 & P6 & P7 & P8 & P9 & P10 \\ 
-  \hline
-\rowcolor{red!40} S1 & H & T & E & S & Q & R & C & W & Y & M \\ 
-\rowcolor{blue!40}  S2 & A & Q & R & G & N & D & K & I & P & V \\ 
-   \hline
-\end{tabular}
-\end{table}
 
-Przykłady n-gramów:
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=5,results='asis'>>=
+seqs <- read.fasta("./data/seqs.fasta", seqtype = "AA")
+seq_df <- lapply(seqs, function(i) i[1L:27]) %>% 
+  do.call(rbind, .) %>% 
+  cbind(name = sub(">", "", sapply(seqs, function(i) attr(i, "Annot"))), .) %>% 
+  data.frame
 
-\begin{enumerate}
-    \item \textcolor{red}{H}, \textcolor{blue}{A}, \textcolor{red}{T}, \textcolor{blue}{Q}
-    \item \textcolor{red}{HT}, \textcolor{blue}{AQ}, \textcolor{red}{TE}, \textcolor{blue}{QR}
-    \item \textcolor{red}{H-E}, \textcolor{blue}{A-R}, \textcolor{red}{T-S}, \textcolor{blue}{Q-G}
-    \item \textcolor{red}{H--SQ}, \textcolor{blue}{A--GN}, \textcolor{red}{T--QR}, \textcolor{blue}{Q--ND}
-\end{enumerate}
+colnames(seq_df)[-1] <- paste0("P", 1L:27)
 
-\end{frame}
+mseq_df <- melt(seq_df, id.vars = "name",
+     value.name = "aa", variable.name = "pos") %>% 
+  mutate(aa = factor(aa, levels = a()[-1])) %>% 
+  mutate(pos = as.numeric(sub("P", "", pos))) %>% 
+  mutate(name = factor(gsub(" ", "\n", name))) %>% 
+  mutate(name = relevel(name, "Plasmodium\nfalciparum")) %>% 
+  mutate(sig = pos == "25") %>% 
+  inner_join(data.frame(aa = a()[-1], hydr = aaprop[2, ]))
+
+sample_seq <- as.matrix(seq_df[, 2L:10])
+colnames(sample_seq) <- paste0("P", 1L:ncol(sample_seq))
+rownames(sample_seq) <- paste0("S", 1L:4)
+sample_seq_dat <- data.frame(sample_seq)
+
+print(xtable(sample_seq_dat[1, 1L:5], include.rownames = FALSE, booktabs = TRUE))
+@
+
+
+2-grams:
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=5,results='asis'>>=
+seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 2, aa_v, d = 0) %>% 
+  decode_ngrams %>% 
+  #paste0(",") %>%
+  gsub("_", " - ", x = .) %>% 
+  cat(sep = ", ")
+@
+
+2-grams (gap 1):
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=5,results='asis'>>=
+seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 2, aa_v, d = 1) %>% 
+  decode_ngrams %>% 
+  #paste0(",") %>%
+  gsub("_", " -- ", x = .) %>% 
+  cat(sep = ", ")
+@
+
+3-grams:
+<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=5,results='asis'>>=
+seq2ngrams(sample_seq[1, 1L:5, drop = FALSE], 3, aa_v, d = 0) %>% 
+  decode_ngrams %>% 
+  #paste0(",") %>%
+  gsub("_", " -- ", x = .) %>% 
+  cat(sep = ", ")
+@
+\end{frame}  
 
 
 
@@ -176,18 +290,16 @@ ggplot(dat, aes(x = n, y = n_max, color = m, label = formatC(n_max, digits = 4))
   geom_text(size = 4, vjust = -1.5, hjust = "inward", color = "red") +
   coord_cartesian(ylim = c(1, 4.5e7)) +
   scale_x_continuous("n", breaks = 0L:5) +
-  scale_y_continuous("Całkowita liczba n-gramów (skala logarytmiczna)",
+  scale_y_continuous("Total number of n-grams (log-scale)",
                      trans = "log10") +
-  scale_color_discrete("Rozmiar alfabetu") +
+  scale_color_discrete("Alphabet size") +
   my_theme
 @
-
-Dłuższe n-gramy są bardziej informatywne, ale tworzą większe przestrzenie atrybutów.
-
+Longer n-grams are more informative, but create larger feature spaces, which are hard to process and analyze.
 \end{frame}
 
-\begin{frame}{Testy permutacyjne}
-Informatywne n-gramy są zazwyczaj wybierane za pomocą testów permutacyjnych.
+\begin{frame}{Permutation Tests}
+  Informative n-grams are usually selected using permutation tests.
 
 During a permutation test we shuffle randomly class labels and compute a defined statistic (e.g. information gain). Values of statistic for permuted data are compared with the value of statistic for original data.
 
@@ -230,21 +342,20 @@ ggplot(times_dat, aes(x = size, y = value, color = variable)) +
 QuiPT (available as part of the \textbf{biogram} R package) is faster than classical permutation tests and returns exact p-values.
 \end{frame}
 
-\subsection{Uproszczone alfabety}
+\section{Simplified alphabets}
 
 \begin{frame}
-Uproszczone alfabety:
+Simplified alphabets:
 \begin{itemize}
-\item aminokwasy są grupowane w większe zbiory na podstawie 
-określonych kryteriów,
-\item łatwiejsze przewidywanie struktur~\citep{murphy_simplified_2000},
-\item tworzenie bardziej uogólnionych modeli.
+\item are based on grouping amino acids with similar physicochemical properties,
+\item ease computational analysis of a sequence~\citep{murphy_simplified_2000},
+\item create more explicite models.
 \end{itemize}
 \end{frame}
 
 
 \begin{frame}  
-Poniższe peptydy wydają się być całkowicie inne pod względem składu aminokwasowego.
+Two sequences that are drastically different considering their amino acids composition can have the same physicochemical properties.
 
 
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
@@ -252,13 +363,13 @@ seq1 <- c("f", "k", "v", "w", "p", "d", "h", "g", "s", "g")
 seq2 <- c("y", "m", "c", "i", "y", "r", "a", "q", "t", "n")
 @
 
-Sekwencja I: 
+Sequence I: 
 
 \texttt{\Sexpr{toupper(paste0(seq1, collapse = ""))}}
 
 \medskip
 
-Sekwencja II: 
+Sequence II: 
 
 \texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}}
 
@@ -267,9 +378,9 @@ Sekwencja II:
 
 \begin{frame}
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
-seq_dat <- rbind(data.frame(seq = "Sekwencja I", pos = 1L:10, 
+seq_dat <- rbind(data.frame(seq = "Sequence I", pos = 1L:10, 
                             aa = seq1, val = aaprop["ARGP820101", seq1]),
-                 data.frame(seq = "Sekwencja II", pos = 1L:10, 
+                 data.frame(seq = "Sequence II", pos = 1L:10, 
                             aa = seq2, val = aaprop["ARGP820101", seq2])) %>% 
   mutate(hydroph = val < 0.4)
 
@@ -279,8 +390,8 @@ ggplot(seq_dat, aes(x = factor(pos), y = val, label = toupper(aa),
   #geom_point(size = 0) +
   geom_line(linetype = "dotted", color = "black") +
   facet_wrap(~ seq, ncol = 1) +
-  scale_x_discrete("Pozycja") +
-  scale_y_continuous("Hydrofobowość (Argos et al., 1982)", expand = c(.1, .1)) +
+  scale_x_discrete("Position") +
+  scale_y_continuous("Hydrophobicity (Argos et al., 1982)", expand = c(.1, .1)) +
   #scale_color_discrete("Hydrofobowy")
   #guides(colour = guide_legend(override.aes = list(size=4))) +
   my_theme 
@@ -292,7 +403,7 @@ ggplot(seq_dat, aes(x = factor(pos), y = val, label = toupper(aa),
 \begin{table}
 \begin{tabular}{cl}
 \toprule
-Grupa & Aminokwasy \\ 
+Subgroup & Amino acid \\ 
 \midrule
   1 & C, I, L, K, M, F, P, W, Y, V \\ 
 \rowcolor[gray]{0.85}  2 & A, D, E, G, H, N, Q, R, S, T \\ 
@@ -303,9 +414,9 @@ Grupa & Aminokwasy \\
 \begin{columns}
 \begin{column}{0.44\textwidth}
  
-Sekwencja I: \texttt{\Sexpr{toupper(paste0(seq1, collapse = ""))}} \textrightarrow
+Sequence I: \texttt{\Sexpr{toupper(paste0(seq1, collapse = ""))}} \textrightarrow
 
-Sekwencja II: \texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}} \textrightarrow
+Sequence II: \texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}} \textrightarrow
 
 \end{column}
 \begin{column}{0.5\textwidth}  %%<--- here
@@ -319,44 +430,10 @@ Sekwencja II: \texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}} \textrightar
 
 
 
-\section{Przewidywanie amyloidów}
-
-\begin{frame}{Białka amyloidowe}
-
-Agregaty białek amyloidowe występują w tkankach osób cierpiących na zaburzenia 
-neurodegeneracyjne, takie jak choroba Alzheimera i Parkinsona, a także wiele innych 
-schorzeń.
-
-\begin{figure} 
-\includegraphics[width=0.61\textwidth]{static_figure/amyloid_aggregates.jpg}
-\end{figure}
-
-\footnotesize
-Agregaty amyloidowe (czerwone) wokół neuronów (zielone). Strittmatter Laboratory, Yale University.
-
-\end{frame}  
-
-  
-\begin{frame}{Białka amyloidowe}
-
-Za agregację białek amyloidogennych odpowiedzialne są sekwencje peptydowe o właściwościach amyloidogennych (hot spots):
-
-\begin{itemize}
-\item krótkie (6-15 aminokwasów),
-\item bardzo zmienny skład aminokwasowy,
-\item tworzą unikalne $\beta$-struktury.
-\end{itemize}
-
-\begin{figure} 
-\includegraphics[width=0.9\textwidth]{static_figure/zipper_structure.jpg}
-\end{figure}
-
-\footnotesize\citet{sawaya_atomic_2007}
-\end{frame}
-
+\section{Prediction of amyloidogenicity}
 
 \begin{frame}{AmyloGram}
-AmyloGram: oparte na analizie n-gramowej narzędzie do przewidywania amyloidów~\citep{burdukiewicz_prediction_2016, BurdukiewiczAmyloidogenicmotifsrevealed2017a}.
+AmyloGram: n-gram based tool for prediction of amyloid proteins~\citep{burdukiewicz_prediction_2016}.
 \end{frame}
 
 
@@ -366,43 +443,38 @@ AmyloGram: oparte na analizie n-gramowej narzędzie do przewidywania amyloidów~
 \end{figure}
   \end{frame}
 
-\begin{frame}{Walidacja krzyżowa}
+\begin{frame}{Cross-validation}
   <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
-
-levels(subdat[["len_range"]]) <- c("Zbiór testowy (peptydy o długości 6)", 
-                                   "Zbiór testowy (peptydy o długości 7-10)", 
-                                   "Zbiór testowy (peptydy o długości 11-15)", 
-                                   "Zbiór testowy (peptydy o długości 16-25)")
-
-levels(subdat[["et"]]) <-  c("Najlepszy uproszczony alfabet", "Uproszczony alfabet", 
-                             "Pełny alfabet", "Standardowy uproszczony alfabet")
 
 ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
   geom_boxplot(outlier.color = NA, outlier.shape = 16, outlier.size = 3, color = NA, fill = NA) +
-  geom_point(data = filter(subdat, et == "Pełny alfabet"), 
+  geom_point(data = filter(subdat, et == "Full alphabet"), 
              aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 3) +
   scale_x_discrete("") +
-  scale_y_continuous("Średnie AUC") +
+  scale_y_continuous("Mean AUC") +
   scale_shape_manual("", values = c(16, 16, 15, 15)[3], drop = TRUE) +
   scale_color_manual("", values = c("red", "grey", "green", "blue")[3], drop = TRUE) +
   guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2)) + 
   #facet_wrap(~ pos, nrow = 3) +
-  ggtitle("Zbiór treningowy (peptydy o długości 6)") + 
+  ggtitle("Training peptide length: 6") + 
   my_theme + 
   coord_flip()
 
 @
-%AUC (Area Under the Curve) measures the performance of a classifier (1 - classifier always properly recognizes amyloid proteins, 0 - classifier never properly recognizes amyloid proteins).
+AUC (Area Under the Curve) measures the performance of a classifier (1 - classifier always properly recognizes amyloid proteins, 0 - classifier never properly recognizes amyloid proteins).
 
 \end{frame}
 
 
+\begin{frame}
+  Does amyloidogenicity depend on the exact sequence of amino acids?
+  \end{frame}
 
-\begin{frame}{Standardowe uproszczone alfabety}
-Opublikowano kilka uproszczonych alfabetów, które w założeniu miały służyć do opisywania struktur drugo- i trzeciorzędowych białek~\citep{kosiol_new_2004, melo_accuracy_2006}.
+\begin{frame}{Standard simplified amino acid alphabets}
+To date, several simplified amino acid alphabets have been proposed, which have been applied to (among others) protein folding and protein structure prediction~\citep{kosiol_new_2004, melo_accuracy_2006}.
   \end{frame}
   
-    \begin{frame}{Standardowe uproszczone alfabety}
+    \begin{frame}{Standard simplified amino acid alphabets}
 \begin{figure} 
 \includegraphics[width=0.95\textwidth]{static_figure/ngram2.eps}
 \end{figure}
@@ -411,33 +483,33 @@ Opublikowano kilka uproszczonych alfabetów, które w założeniu miały służy
   \end{frame}
 
 
-    \begin{frame}{Walidacja krzyżowa}
+    \begin{frame}{Cross-validation}
   <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
   geom_boxplot(outlier.color = NA, outlier.shape = 16, outlier.size = 3, color = NA, fill = NA) +
-  geom_point(data = filter(subdat, et %in% c("Pełny alfabet", "Standardowy uproszczony alfabet")), 
+  geom_point(data = filter(subdat, et %in% c("Full alphabet", "Standard simplified alphabet")), 
              aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 3) +
   scale_x_discrete("") +
-  scale_y_continuous("Średnie AUC") +
+  scale_y_continuous("Mean AUC") +
   scale_shape_manual("", values = c(16, 16, 15, 15)[3L:4], drop = TRUE) +
   scale_color_manual("", values = c("red", "grey", "green", "blue")[3L:4], drop = TRUE) +
   guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2)) + 
   #facet_wrap(~ pos, nrow = 3) +
-  ggtitle("Zbiór treningowy (peptydy o długości 6)") + 
+  ggtitle("Training peptide length: 6") + 
   my_theme + 
   coord_flip()
 
 @
 
-Standardowe alfabety aminokwasowe nie poprawiają jakości predykcji amyloidów.
+Standard simplified amino acid alphabets do not enhance discrimination between amyloidogenic and non-amyloidogenic proteins.
   
   \end{frame}
 
 
-\begin{frame}{Nowe uproszczone alfabety}
+\begin{frame}{Novel simplified amino acid alphabets}
 
 \begin{itemize}
-\item 17 miar wybranych z bazy AAIndex: 
+\item 17 measures handpicked from AAIndex database: 
   \begin{itemize}
     \item size of residues, 
     \item hydrophobicity, 
@@ -450,7 +522,7 @@ Standardowe alfabety aminokwasowe nie poprawiają jakości predykcji amyloidów.
 
     \end{frame}
   
-    \begin{frame}{Nowe uproszczone alfabety}
+    \begin{frame}{Novel simplified amino acid alphabets}
 \begin{figure} 
 \includegraphics[width=0.95\textwidth]{static_figure/ngram3.eps}
 \end{figure}
@@ -458,59 +530,59 @@ Standardowe alfabety aminokwasowe nie poprawiają jakości predykcji amyloidów.
 
 
 
-\begin{frame}{Walidacja krzyżowa}
+\begin{frame}{Cross-validation}
   <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
-subdat2 <- droplevels(filter(subdat, et != "Najlepszy uproszczony alfabet"))
+subdat2 <- droplevels(filter(subdat, et != "Best-performing simplified alphabet"))
 
 ggplot(subdat2, aes(x = len_range, y = AUC_mean)) +
   geom_boxplot(outlier.color = "grey", outlier.shape = 16, outlier.size = 3, color = "black", fill = "white") +
-  geom_point(data = filter(subdat2, et %in% c("Pełny alfabet", "Standardowy uproszczony alfabet")), 
+  geom_point(data = filter(subdat2, et %in% c("Full alphabet", "Standard simplified alphabet")), 
              aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 3) +
   scale_x_discrete("") +
-  scale_y_continuous("Średnie AUC") +
+  scale_y_continuous("Mean AUC") +
   scale_shape_manual("", values = c(16, 16, 15, 15)[2L:4], drop = FALSE) +
   scale_color_manual("", values = c("red", "grey", "green", "blue")[2L:4], drop = FALSE) +
   guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2)) + 
   #facet_wrap(~ pos, nrow = 3) +
-  ggtitle("Zbiór treningowy (peptydy o długości 6)") + 
+  ggtitle("Training peptide length: 6") + 
   my_theme + 
   coord_flip()
 
 @
-%  \small
-%Hinges of boxes correspond to 
-%the 0.25 and 0.75 quartiles. The bar inside the box represents the median. The 
-%gray circles correspond to the simplified alphabets with the AUC outside the 0.95 
-%confidence interval.
+  \small
+Hinges of boxes correspond to 
+the 0.25 and 0.75 quartiles. The bar inside the box represents the median. The 
+gray circles correspond to the simplified alphabets with the AUC outside the 0.95 
+confidence interval.
 
   
-\end{frame}
+  \end{frame}
 
 
   
-\begin{frame}{The best-performing simplified alphabet}
+    \begin{frame}{The best-performing simplified alphabet}
   <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 
 ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
   geom_boxplot(outlier.color = "grey", outlier.shape = 16, outlier.size = 3) +
-  geom_point(data = filter(subdat, et != "Uproszczony alfabet"), 
+  geom_point(data = filter(subdat, et != "simplified alphabet"), 
              aes(x = len_range, y = AUC_mean, color = et, shape = et), size = 3) +
   scale_x_discrete("") +
-  scale_y_continuous("Średnie AUC") +
+  scale_y_continuous("Mean AUC") +
   scale_shape_manual("", values = c(16, 16, 15, 15), drop = FALSE) +
   scale_color_manual("", values = c("red", "grey", "green", "blue"), drop = FALSE) +
   guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2)) + 
   #facet_wrap(~ pos, nrow = 3) +
-  ggtitle("Zbiór treningowy (peptydy o długości 6)") + 
+  ggtitle("Training peptide length: 6") + 
   my_theme + 
   coord_flip()
 @
-\end{frame}
+  \end{frame}
 
-\begin{frame}{The best-performing simplified alphabet}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
+     \begin{frame}{The best-performing simplified alphabet}
+   <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 # cat(group2df(best_enc, caption = "The best-performing simplified alphabet."))
-@
+ @
    \begin{table}[ht]
 \centering
 \begin{tabular}{rl}
@@ -720,15 +792,7 @@ MCC (Matthew's Correlation Coefficient) measures the performance of a classifier
 \end{figure}
 \end{frame}
 
-\begin{frame}{Novel amyloid protein}
-
-\includegraphics[width=0.75\textwidth]{static_figure/line.jpg}
-
-Methanospirillum sp. \citep{10.3389/fmicb.2018.02729}
-
-\end{frame}
-
-\section{Przewidywanie peptydów sygnałowych}
+\section{Other applications}
 
 \begin{frame}{Signal peptide prediction}
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
@@ -738,52 +802,6 @@ grid.arrange(plot_pca(pca_full) + ggtitle("Full alphabet"),
 @
 PCA of amino acid frequency in signal peptides.
 
-\end{frame}  
-
-
-\begin{frame}{Signal peptides}
-
-\begin{figure} 
-\includegraphics[width=0.75\textwidth]{static_figure/SP.png}
-\end{figure}
-
-Signal peptides:
-        \begin{itemize}[<+->]
-          \item are short (20-30 residues) N-terminal amino acid sequences forming $\alpha$-helices,
-            \item direct proteins to the endomembrane system and next to extra- or intracellular localizations,
-            \item are universal enough to direct properly proteins in different secretory systems.
-        \end{itemize}
-\end{frame}
-
-
-  
-\begin{frame}{Signal peptides}
-
-\begin{figure} 
-\includegraphics[width=0.75\textwidth]{static_figure/SP.png}
-\end{figure}
-
-Signal peptides possess three distinct domains with variable length and characteristic amino acid composition~\citep{hegde_surprising_2006}:
-      \begin{itemize}
-        \item n-region: mostly basic residues~\citep{nielsen_prediction_1998},
-        \item h-region: strongly hydrophobic residues~\citep{nielsen_prediction_1998},
-        \item c-region: a few polar, uncharged residues.
-      \end{itemize}
-\end{frame}
-
-
-%Peptydy sygnałowe rozpoczynają się naładowanym dodatnio n-regionem, po którym występuje hydrofobowy h-region i c-region zakończony miejscem cięcia rozpoznawanym przez peptydazę sygnałową. 
-
-  
-\begin{frame}{Signal peptides}  
-Amino acid composition of signal peptides differ between Plasmodium sp. and other eukaryotes. Therefore, predictors of signal peptides do not detect malarial signal peptides accurately.
-
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4,results='asis'>>=
-plot_pca(pca_full)
-  #ggtitle("PCA częstości aminokwasów w peptydach sygnałowych")
-@  
-
-PCA of amino acid frequency in signal peptides.
 \end{frame}  
 
 
@@ -846,11 +864,27 @@ grid.newpage()
 
 \end{frame}
 
+\begin{frame}{Prediction of culturing conditions}
+Results of nested cross-validation of MethanoGram.
+\begin{table}[ht]
+\centering
+\begin{tabular}{ll}
+  \hline
+Culturing condition & Mean error \\ 
+  \hline
+Growth rate [h$^{-1}$] & 0.35 \\ 
+Growth doubling time [h] &  27.19 \\ 
+Optimal growth temp. [$^{\circ}$C] & 8.89 \\ 
+Optimal growth pH & 0.47 \\ 
+Optimal growth NaCl [mol/dm$^3$] & 0.21 \\ 
+   \hline
+\end{tabular}
+\label{tab:nested_cv}
+\end{table}
 
-\begin{figure} 
-\includegraphics[width=0.95\textwidth]{static_figure/Figure2.eps}
-\end{figure}
-\end{frame}
+\end{frame}  
+
+
 
 \begin{frame}{Summary}
 \begin{enumerate}
@@ -862,7 +896,7 @@ grid.newpage()
 
 \item Applied the n-gram analysis framework to:
 \begin{itemize}
-\item prediction of amyloids (AmyloGram),
+\item prediction of amyloids (AmyloGram) (to appear in Scientific Reports),
 \item prediction of atypical signal peptides,
 \item prediction of culture conditions of methanogenes (MethanoGram).
 \end{itemize}
@@ -871,7 +905,7 @@ grid.newpage()
 
 \begin{frame}{Summary}
 
-Web serwery:
+Web servers:
 \begin{itemize}
 \item \textbf{AmyloGram}: \url{http://www.smorfland.uni.wroc.pl/shiny/AmyloGram/}.
 \item \textbf{MethanoGram}: \url{http://www.smorfland.uni.wroc.pl/shiny/MethanoGram/}.
@@ -879,18 +913,17 @@ Web serwery:
 \end{itemize}
 
 
-Pakiety \textbf{R}:
+Software packages:
 \begin{itemize}
 \item \textbf{biogram}: \url{https://cran.r-project.org/package=biogram}.
 \item \textbf{AmyloGram}: \url{https://cran.r-project.org/package=AmyloGram}.
-\item \textbf{signalHsmm}: \url{https://cran.r-project.org/package=signalHsmm}.
 \end{itemize}
 
 
 \end{frame}  
 
-\begin{frame}{Podziękowania}
-Mentorzy:
+\begin{frame}{Acknowledgments}
+Mentors:
 \begin{itemize}
 \item \textbf{Paweł Mackiewicz (University of Wrocław)}.
 \item Lars Kaderali (University of Greifswald).
@@ -932,68 +965,28 @@ Funding:
 \begin{frame}[allowframebreaks]{Publications}
 
 \small
-\begin{enumerate}  
-\item Kolenda R., \underline{Burdukiewicz M.}, Schiebel J., Rödiger S, Sauer L., Szabo I., Orłowska A., Weinreich J., Nitschke J., Böhm, A., Gerber U., Roggenbuck D., Schierack P., Adhesion of Salmonella to pancreatic secretory granule membrane major glycoprotein GP2 of human and porcine origin depends on FimH sequence variation, \textbf{Frontiers in microbiology}, 2018 [liczba cytacji: 0].
+\begin{enumerate}
+\item \textbf{Burdukiewicz, M.}, Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports (accepted).
 
-\item Mackiewicz D., Posacki P., \underline{Burdukiewicz M.}, Błażej P. \textit{Role of recombination and faithfulness to partner in sex chromosome degeneration}. \textbf{Scientific Reports}, 2018 [liczba cytacji: 0].
+\item Rödiger, S., \textbf{Burdukiewicz, M.}, Spiess, A.-N., and Blagodatskikh, K. (2017). Enabling reproducible real-time quantitative PCR research: the RDML package. Bioinformatics.
 
-\item \underline{Burdukiewicz M.}, Gagat P. Jab\l{}o\'nski S., Chilimoniuk J., 
-Gaworski M., Mackiewicz P., \L{}ukaszewicz M. \textit{PhyMet2: a database and toolkit for phylogenetic and metabolic analyses of methanogens}.
-\textbf{Environmental Microbiology Reports}, 2018 [liczba cytacji: 0].
+\item Schiebel, J., Böhm, A., Nitschke, J., \textbf{Burdukiewicz, M.}, Weinreich, J., Ali, A., Roggenbuck, D., Rödiger, S., and Schierack, P. (2017). Genotypic and phenotypic characteristics in association with biofilm formation in different pathotypes of human clinical Escherichia coli isolates. Appl. Environ. Microbiol. AEM.01660-17.
 
-\item \underline{Burdukiewicz M.}, Sobczyk P. R\"{o}diger S., Duda-Madej A., 
-Mackiewicz P., Kotulska M., \textit{Amyloidogenic motifs revealed by n-gram 
-analysis}. 
-\textbf{Scientific Reports}, 2017 [liczba cytacji: 2]. 
+\item \textbf{Burdukiewicz, M.}, Rödiger, S., Sobczyk, P., Menschikowski, M., Schierack, P., and Mackiewicz, P. (2016a). Methods for comparing multiple digital PCR experiments. Biomolecular Detection and Quantification 9, 14–19.
 
-\item Schiebel J., B\"{o}hm A., Nitschke J., \underline{Burdukiewicz M.}, 
-Weinreich J., Ali A., Roggenbuck
-D., R\"{o}diger S., Schierack P., \textit{Genotypic and phenotypic 
-characteristics in association
-with biofilm formation in different pathotypes of human clinical Escherichia 
-coli isolates},
-\textbf{Applied and Environmental Microbiology}, 2017 [liczba cytacji: 2].
+\item \textbf{Burdukiewicz, M.}, Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2016b). Prediction of amyloidogenicity based on the n-gram analysis. PeerJ Preprints.
 
-\item R\"{o}diger S., \underline{Burdukiewicz M.}, Spiess A.-N., Blagodatskikh 
-K., \textit{Enabling reproducible real-time quantitative PCR research: the RDML 
-package}. 
-\textbf{Bioinformatics}, 2017 [liczba cytacji: 0].
+\item Spiess, A.-N., Rödiger, S., \textbf{Burdukiewicz, M.}, Volksdorf, T., and Tellinghuisen, J. (2016). System-specific periodicity in quantitative real-time polymerase chain reaction data questions threshold-based quantitation. Scientific Reports.
 
-\item \underline{Burdukiewicz M.}, R\"{o}diger S., Sobczyk P., Menschikowski 
-M., Schierack P.,
-Mackiewicz P., \textit{Methods for comparing multiple digital PCR experiments}, 
-\textbf{Biomolecular
-Detection and Quantification}, 2016 [liczba cytacji: 2].
+\item Rödiger, S., \textbf{Burdukiewicz, M.}, Blagodatskikh, K., Jahn M., and Schierack, P. (2016). R as an Environment for Reproducible Analysis of DNA Amplification Experiments (R Journal).
 
-\item Spiess A.-N., R\"{o}diger S., \underline{Burdukiewicz M.}, Volksdorf T., 
-Tellinghuisen J., \textit{System-
-specific periodicity in quantitative real-time polymerase chain reaction data 
-questions
-threshold-based quantitation}, \textbf{Scientific Reports}, 2016 [liczba cytacji: 4]. % [40 points].
+\item Rödiger, S., \textbf{Burdukiewicz, M.}, and Schierack, P. (2015). chipPCR: an R package to pre-process raw data of amplification curves. Bioinformatics 31, 2900–2902.
 
-\item Kolenda R., \underline{Burdukiewicz M.}, Schierack P., \textit{A 
-systematic review and meta-analysis of the epidemiology of pathogenic 
-escherichia coli of calves and the role of calves as reservoirs for human 
-pathogenic E. coli}. \textbf{Frontiers in Cellular and Infection Microbiology}, 
-2015 [liczba cytacji: 34]. % [40 points].
+\item Spiess, A.-N., Deutschmann, C., \textbf{Burdukiewicz, M.}, Himmelreich, R., Klat, K., Schierack, P., and Rödiger, S. (2015). Impact of Smoothing on Parameter Estimation in Quantitative DNA Amplification Experiments. Clinical Chemistry 61, 379–388.
 
-\item R\"{o}diger S., \underline{Burdukiewicz M.}, Schierack P., 
-\textit{chipPCR: an R Package to Pre-Process Raw Data of Amplification Curves}. 
-\textbf{Bioinformatics}, 2015 [liczba cytacji: 12]. % [45 points].
-
-\item R\"{o}diger S., \underline{Burdukiewicz M.}, Blagodatskikh K., Jahn M., 
-Schierack P., 
-\textit{R as an
-Environment for the Reproducible Analysis of DNA Amplification Experiments}, 
-\textbf{R Journal}, 2015 [liczba cytacji: 14]. %  [30 points].
-
-\item Spiess A.-N., Deutschmann C., \underline{Burdukiewicz M.}, Himmelreich 
-R., 
-Klat K., Schierack P., R\"{o}diger S., \textit{Impact of smoothing on parameter 
-estimation in quantitative dna amplification experiments}. \textbf{Clinical 
-Chemistry}, 2014 [liczba cytacji: 13]. %  [50 points].
-
+\item Kolenda, R., \textbf{Burdukiewicz, M.}, and Schierack, P. (2015). A systematic review and meta-analysis of the epidemiology of pathogenic Escherichia coli of calves and the role of calves as reservoirs for human pathogenic E. coli. Frontiers in Cellular and Infection Microbiology 5.
 \end{enumerate}
+
 \end{frame}
 
 \begin{frame}{Summary}

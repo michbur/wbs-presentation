@@ -1,0 +1,4 @@
+\beamer@sectionintoc {1}{n-grams}{12}{0}{1}
+\beamer@sectionintoc {2}{Simplified alphabets}{17}{0}{2}
+\beamer@sectionintoc {3}{Prediction of amyloidogenicity}{21}{0}{3}
+\beamer@sectionintoc {4}{Other applications}{45}{0}{4}

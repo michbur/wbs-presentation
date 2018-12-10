@@ -1,0 +1,86 @@
+\begin{thebibliography}{}
+
+\bibitem[Burdukiewicz et~al., 2016]{burdukiewicz_prediction_2016}
+Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P.,
+  and Kotulska, M. (2016).
+\newblock Prediction of amyloidogenicity based on the n-gram analysis.
+\newblock Technical Report e2390v1, PeerJ Preprints.
+
+\bibitem[Família et~al., 2015]{familia_prediction_2015}
+Família, C., Dennison, S.~R., Quintas, A., and Phoenix, D.~A. (2015).
+\newblock Prediction of {Peptide} and {Protein} {Propensity} for {Amyloid}
+  {Formation}.
+\newblock {\em PLOS ONE}, 10(8):e0134679.
+
+\bibitem[Garbuzynskiy et~al., 2010]{garbuzynskiy_foldamyloid:_2010}
+Garbuzynskiy, S.~O., Lobanov, M.~Y., and Galzitskaya, O.~V. (2010).
+\newblock {FoldAmyloid}: a method of prediction of amyloidogenic regions from
+  protein sequence.
+\newblock {\em Bioinformatics (Oxford, England)}, 26(3):326--332.
+
+\bibitem[Hegde and Bernstein, 2006]{hegde_surprising_2006}
+Hegde, R.~S. and Bernstein, H.~D. (2006).
+\newblock The surprising complexity of signal sequences.
+\newblock {\em Trends in Biochemical Sciences}, 31(10):563--571.
+
+\bibitem[Jab{\l}o{\'n}ski et~al., 2015]{jablonski2015methanogenic}
+Jab{\l}o{\'n}ski, S., Rodowicz, P., and {\L}ukaszewicz, M. (2015).
+\newblock Methanogenic archaea database containing physiological and
+  biochemical characteristics.
+\newblock {\em Int J Syst Evol Microbiol}, 65(4):1360--1368.
+
+\bibitem[Kosiol et~al., 2004]{kosiol_new_2004}
+Kosiol, C., Goldman, N., and Buttimore, N.~H. (2004).
+\newblock A new criterion and method for amino acid classification.
+\newblock {\em Journal of Theoretical Biology}, 228(1):97--106.
+
+\bibitem[Melo and Marti-Renom, 2006]{melo_accuracy_2006}
+Melo, F. and Marti-Renom, M.~A. (2006).
+\newblock Accuracy of sequence alignment and fold assessment using reduced
+  amino acid alphabets.
+\newblock {\em Proteins}, 63(4):986--995.
+
+\bibitem[Murphy et~al., 2000]{murphy_simplified_2000}
+Murphy, L.~R., Wallqvist, A., and Levy, R.~M. (2000).
+\newblock Simplified amino acid alphabets for protein fold recognition and
+  implications for folding.
+\newblock {\em Protein Engineering}, 13(3):149--152.
+
+\bibitem[Nielsen and Krogh, 1998]{nielsen_prediction_1998}
+Nielsen, H. and Krogh, A. (1998).
+\newblock Prediction of signal peptides and signal anchors by a hidden {Markov}
+  model.
+\newblock {\em Proceedings / ... International Conference on Intelligent
+  Systems for Molecular Biology ; ISMB. International Conference on Intelligent
+  Systems for Molecular Biology}, 6:122--130.
+
+\bibitem[Paz and Serrano, 2004]{paz_sequence_2004}
+Paz, M. L. d.~l. and Serrano, L. (2004).
+\newblock Sequence determinants of amyloid fibril formation.
+\newblock {\em Proceedings of the National Academy of Sciences}, 101(1):87--92.
+
+\bibitem[Petersen et~al., 2011]{petersen_signalp_2011}
+Petersen, T.~N., Brunak, S., von Heijne, G., and Nielsen, H. (2011).
+\newblock {SignalP} 4.0: discriminating signal peptides from transmembrane
+  regions.
+\newblock {\em Nature Methods}, 8(10):785--786.
+
+\bibitem[Sawaya et~al., 2007]{sawaya_atomic_2007}
+Sawaya, M.~R., Sambashivan, S., Nelson, R., Ivanova, M.~I., Sievers, S.~A.,
+  Apostol, M.~I., Thompson, M.~J., Balbirnie, M., Wiltzius, J. J.~W.,
+  McFarlane, H.~T., Madsen, A.~�., Riekel, C., and Eisenberg, D. (2007).
+\newblock Atomic structures of amyloid cross-β spines reveal varied steric
+  zippers.
+\newblock {\em Nature}, 447(7143):453--457.
+
+\bibitem[Stephenson and Freeland, 2013]{stephenson_unearthing_2013}
+Stephenson, J.~D. and Freeland, S.~J. (2013).
+\newblock Unearthing the root of amino acid similarity.
+\newblock {\em Journal of Molecular Evolution}, 77(4):159--169.
+
+\bibitem[Walsh et~al., 2014]{walsh_pasta_2014}
+Walsh, I., Seno, F., Tosatto, S. C.~E., and Trovato, A. (2014).
+\newblock {PASTA} 2.0: an improved server for protein aggregation prediction.
+\newblock {\em Nucleic Acids Research}, 42(W1):W301--W307.
+
+\end{thebibliography}

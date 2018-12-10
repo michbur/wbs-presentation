@@ -1,6 +1,7 @@
 \documentclass{beamer}
 %\usetheme{metropolis}
 \usepackage[utf8]{inputenc}
+\usepackage{polski}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{natbib}
@@ -105,7 +106,7 @@ names(best_enc) <- 1L:6
 
 \begin{frame}{} 
 
-Badania \textit{In silico} pozwalają efektywniej planować prace eksperymentalne.
+Badania \textit{in silico} pozwalają efektywniej planować prace eksperymentalne.
 
 Przykłady: 
 
@@ -186,19 +187,6 @@ Dłuższe n-gramy są bardziej informatywne, ale tworzą większe przestrzenie a
 
 \end{frame}
 
-\begin{frame}{Testy permutacyjne}
-Informatywne n-gramy są zazwyczaj wybierane za pomocą testów permutacyjnych.
-
-During a permutation test we shuffle randomly class labels and compute a defined statistic (e.g. information gain). Values of statistic for permuted data are compared with the value of statistic for original data.
-
-$$
-\textrm{p-value} = \frac{N_{T_P > T_R}}{N} $$
-
-$N_{T_P > T_R}$: number of cases, where $T_P$ (permuted test statistic) has more extreme values than $T_R$ (test statistic for original data).
-
-$N$: number of permutations.
-  \end{frame}
-
 \begin{frame}{QuiPT}  
 
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=3.6,results='asis'>>=
@@ -216,18 +204,18 @@ times_dat <- do.call(rbind, lapply(times, function(i)
   group_by(size, variable) %>% 
   summarise(value = mean(value)) %>% 
   ungroup %>% 
-  mutate(variable = factor(variable, labels = c("Permutation test", "QuiPT")))
+  mutate(variable = factor(variable, labels = c("Test permutacyjny", "QuiPT")))
 
 ggplot(times_dat, aes(x = size, y = value, color = variable)) +
   geom_point() +
   geom_line(linetype = "dotted") +
-  scale_y_continuous("Computation time [s]") +
-  scale_x_continuous("Number of tested n-grams") +
+  scale_y_continuous("Czas [s]") +
+  scale_x_continuous("Liczba testowanych n-gramów") +
   scale_color_manual("Test", values = c("red", "blue")) +
   my_theme
 @
 
-QuiPT (available as part of the \textbf{biogram} R package) is faster than classical permutation tests and returns exact p-values.
+QuiPT (dostępny jako funkcja w pakiecie \textbf{biogram}) jest szybszy niż klasyczne testy permutacyjne.
 \end{frame}
 
 \subsection{Uproszczone alfabety}
@@ -343,7 +331,7 @@ Za agregację białek amyloidogennych odpowiedzialne są sekwencje peptydowe o w
 
 \begin{itemize}
 \item krótkie (6-15 aminokwasów),
-\item bardzo zmienny skład aminokwasowy,
+\item bardzo zmienny, zazwyczaj hydrofobowy skład aminokwasowy,
 \item tworzą unikalne $\beta$-struktury.
 \end{itemize}
 
@@ -437,15 +425,14 @@ Standardowe alfabety aminokwasowe nie poprawiają jakości predykcji amyloidów.
 \begin{frame}{Nowe uproszczone alfabety}
 
 \begin{itemize}
-\item 17 miar wybranych z bazy AAIndex: 
+\item 17 miar fizykochemicznych wybranych z bazy AAIndex: 
   \begin{itemize}
-    \item size of residues, 
-    \item hydrophobicity, 
-    \item solvent surface area, 
-    \item frequency in $\beta$-sheets,
-    \item contactivity.
+    \item rozmiar, 
+    \item hydrofobowość, 
+    \item częstość w $\beta$-kartkach,
+    \item zdolność do tworzenia kontaktów.
   \end{itemize}
-  \item 524 284 amino acid simplified alphabets with different level of amino acid alphabet reduction (three to six amino acid groups).
+  \item 524 284 uproszczonych alfabetów aminokwasowych o różnej wielkości (od 3 do 6 grup).
   \end{itemize}
 
     \end{frame}
@@ -488,7 +475,7 @@ ggplot(subdat2, aes(x = len_range, y = AUC_mean)) +
 
 
   
-\begin{frame}{The best-performing simplified alphabet}
+\begin{frame}{Najlepszy uproszczony alfabet}
   <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 
 ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
@@ -507,7 +494,7 @@ ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
 @
 \end{frame}
 
-\begin{frame}{The best-performing simplified alphabet}
+\begin{frame}{Najlepszy uproszczony alfabet}
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
 # cat(group2df(best_enc, caption = "The best-performing simplified alphabet."))
 @
@@ -515,7 +502,7 @@ ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
 \centering
 \begin{tabular}{rl}
   \toprule
-Subgroup ID & Amino acids \\ 
+Grupa & Aminokwasy \\ 
   \midrule
   1 & G \\ 
    \rowcolor[gray]{0.85}  2 & K, P, R \\ 
@@ -529,12 +516,12 @@ Subgroup ID & Amino acids \\
    
    \end{frame}
 
-     \begin{frame}{The best-performing simplified alphabet}
+     \begin{frame}{Najlepszy uproszczony alfabet}
    \begin{table}[ht]
 \centering
 \begin{tabular}{rl}
   \toprule
-Subgroup ID & Amino acids \\ 
+Grupa & Aminokwasy \\ 
   \midrule
   1 & G \\ 
    \rowcolor[gray]{0.85}  2 & K, P, R \\ 
@@ -546,16 +533,16 @@ Subgroup ID & Amino acids \\
 \end{tabular}
 \end{table}
    
-Group 3 and 4 - hydrophobic amino acids.  
+Grupy 3 i 4 - aminokwasy hydrofobowe.  
    \end{frame}
   
   
-     \begin{frame}{The best-performing simplified alphabet}
+     \begin{frame}{Najlepszy uproszczony alfabet}
    \begin{table}[ht]
 \centering
 \begin{tabular}{rl}
   \toprule
-Subgroup ID & Amino acids \\ 
+Grupa & Aminokwasy \\ 
   \midrule
   1 & G \\ 
    \rowcolor{red!20}  2 & K, P, R \\ 
@@ -567,22 +554,21 @@ Subgroup ID & Amino acids \\
 \end{tabular}
 \end{table}
    
-Group 2 - charged breakers of $\beta$-structures.  
+Grupa 2 - reszty aminokwasowe zakłócające $\beta$-struktury.  
    
    \end{frame}  
    
-\begin{frame}{Alphabet similarity and performance}
-Is the best-performing simplified amino alphabet associated with amyloidogenicity?
+\begin{frame}{Podobieństwo alfabetów i jakość predykcji}
+Czy alfabety podobne do najlepszego uproszczonego alfabetu również dobrze przewidują amyloidy?
 \end{frame}
 
 \begin{frame}{Similarity index}
 <<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
 si_dat <- read.csv2("si_dat.csv")
 
-levels(si_dat[["et"]]) <- c("Best-performing simplified alphabet", 
-                            "Simplified alphabet", "Full alphabet", 
-                            "Standard simplified alphabet", 
-                            "Standard simplified alphabet")
+levels(si_dat[["et"]]) <- c("Najlepszy uproszczony alfabet", "Uproszczony alfabet", 
+                             "Pełny alfabet", "Standardowy uproszczony alfabet", 
+                            "Standardowy uproszczony alfabet")
 
 
 simil_plot <- ggplot(si_dat, aes(x=si, y=AUC_mean)) + 
@@ -592,11 +578,11 @@ simil_plot <- ggplot(si_dat, aes(x=si, y=AUC_mean)) +
     geom_bin2d(bins = 30) +
   # stat_density2d(aes(fill=..level..), color = "black",
   #                contour = TRUE, geom = "polygon", alpha = 0.5, binwidth = 50, bins = 10) +
-  scale_fill_continuous("Count", low = "gold", high = "goldenrod4") +
+  scale_fill_continuous("Liczba alfabetów", low = "gold", high = "goldenrod4") +
   xlab("Similarity index") +
   ylab("AUC") +
   my_theme +
-  geom_point(data = droplevels(filter(si_dat, et != "Simplified alphabet")),
+  geom_point(data = droplevels(filter(si_dat, et != "Uproszczony alfabet")),
              aes(x = si, y = AUC_mean, color = et, shape = et), size = 4) +
   guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2), 
          fill = guide_colorbar(barwidth = unit(5, "line"))) +
@@ -606,7 +592,7 @@ simil_plot <- ggplot(si_dat, aes(x=si, y=AUC_mean)) +
 
 print(simil_plot)
 @
-Similarity index~\citep{stephenson_unearthing_2013} measures the similarity between two simplified alphabets (1 - identical, 0, totally dissimilar).
+Similarity index~\citep{stephenson_unearthing_2013} mierzy podobieństwo między dwoma uproszczonymi alfabetami (1:~identyczne alfabety, 0:~zupełnie niepodobne alfabety).
 \end{frame}
 
 
@@ -615,22 +601,15 @@ Similarity index~\citep{stephenson_unearthing_2013} measures the similarity betw
 <<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
 print(simil_plot)
 @
-The color of a square is proportional to the number of simplified alphabets in its area.
-\end{frame}
-
-\begin{frame}{Similarity index}
-<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
-print(simil_plot)
-@
-The correlation between mean AUC an similarity index is significant ($\textrm{p-value} \leq 2.2^{-16}$; $\rho = 0.51$).
+Korelacja między similarity index i średnim AUC jest istotna ($\textrm{p-value} \leq 2.2^{-16}$; $\rho = 0.51$).
 \end{frame}
    
 \begin{frame}{}
-Are informative n-grams found by QuiPT associated with amyloidogenicity?
+Czy informatywne n-gramy znalezione przez QuiPT są związane z amyloidogennością?
 \end{frame}
 
 
-\begin{frame}{Informative n-grams}
+\begin{frame}{Informatywne n-gramy}
 <<echo = FALSE,message=FALSE,fig.align='center',fig.width=14,fig.height=6,warning=FALSE>>=
 ngram_freq <- read.csv("ngram_freq.csv")
 
@@ -641,33 +620,34 @@ ngram_freq_plot <- mutate(ngram_freq, decoded_name = gsub("_", "-", decoded_name
   filter(variable %in% c("pos", "neg"),
          association != "Not found") %>%
   droplevels %>%
-  mutate(variable = factor(variable, labels = c("Amyloid", "Non-amyloid")))
+  mutate(variable = factor(variable, labels = c("Amyloid", "Nieamyloid")),
+         association = factor(association, levels = c("Amyloidogenny", "Nieamyloidogenny")))
 
 ggplot(ngram_freq_plot, aes(x = decoded_name, y = value)) +
   geom_bar(aes(fill = variable), position = "dodge", stat = "identity") +
   geom_point(data = group_by(ngram_freq_plot, decoded_name)  %>% filter(value == max(value)),
              aes(y = value + 0.004, shape = association), size = 6) +
   scale_fill_manual("", values = c("gold", "darkmagenta")) +
-  scale_shape_manual("Motif:", breaks = c("Amyloidogenic", "Non-amyloidogenic"), values = c(16, 17, NA)) +
-  scale_y_continuous("Frequency") +
+  scale_shape_manual("Motyw:", breaks = c("Amyloidogenny", "Nieamyloidogenny"), values = c(16, 17, NA)) +
+  scale_y_continuous("Częstość") +
   scale_x_discrete("") +
   my_theme +
   theme(panel.grid.major.y = element_line(color = "lightgrey", size = 0.5)) 
 
 @
 
-Out of 65 the most informative n-grams, 15 (23\%) were also found in the motifs validated experimentally~\citep{paz_sequence_2004}.
+Spośród 65 najbardziej informatywnych n-gramów, 15 (23\%) jest również obecnych w motywach aminokwasowych znalezionych ekperymentalnie~\citep{paz_sequence_2004}.
 \end{frame}
 
 
-\begin{frame}{Benchmark results}
+\begin{frame}{Porównanie z innymi narzędziami}
 
 \begin{table}[ht]
 \centering
 
 \begin{tabular}{ccccc}
   \toprule
-Classifier & AUC & MCC \\ 
+Program & AUC & MCC \\ 
   \midrule
 AmyloGram & \textbf{0.8972} & \textbf{0.6307} \\ 
   \rowcolor{white}PASTA 2.0 \citep{walsh_pasta_2014} & 0.8550 & 0.4291  \\ 
@@ -677,199 +657,196 @@ AmyloGram & \textbf{0.8972} & \textbf{0.6307} \\
 \end{tabular}
 \end{table}
 
-The predictor based on the best-performing alphabet, called AmyloGram, was benchmarked against the most popular tools for the detection of amyloid peptides using an external data set \textit{pep424}.
-
-\footnotesize
+Klasyfikator wytrenowany z wykorzystaniem najlepszego uproszczonego alfabetu, AmyloGram, został porównany z innymi narzędziami do przewidywania amyloidów z użyciem zewnętrznego zbioru danych \textit{pep424}.
 
 \end{frame}
 
-\begin{frame}{Benchmark results}
-
-\begin{table}[ht]
-\centering
-
-\begin{tabular}{ccccc}
-  \toprule
-Classifier & AUC & MCC \\ 
-  \midrule
-AmyloGram & \textbf{0.8972} & \textbf{0.6307} \\ 
-  \rowcolor{white}PASTA 2.0 \citep{walsh_pasta_2014} & 0.8550 & 0.4291  \\ 
-   FoldAmyloid \citep{garbuzynskiy_foldamyloid:_2010} & 0.7351 & 0.4526  \\ 
-  \rowcolor{white}APPNN \citep{familia_prediction_2015} & 0.8343 & 0.5823  \\ 
-   \bottomrule
-\end{tabular}
-\end{table}
-
-MCC (Matthew's Correlation Coefficient) measures the performance of a classifier (1 - classifier always properly recognizes amyloid proteins, -1 - classifier never properly recognizes amyloid proteins).
-
-\footnotesize
-
-\end{frame}
+% \begin{frame}{Benchmark results}
+% 
+% \begin{table}[ht]
+% \centering
+% 
+% \begin{tabular}{ccccc}
+%   \toprule
+% Classifier & AUC & MCC \\ 
+%   \midrule
+% AmyloGram & \textbf{0.8972} & \textbf{0.6307} \\ 
+%   \rowcolor{white}PASTA 2.0 \citep{walsh_pasta_2014} & 0.8550 & 0.4291  \\ 
+%    FoldAmyloid \citep{garbuzynskiy_foldamyloid:_2010} & 0.7351 & 0.4526  \\ 
+%   \rowcolor{white}APPNN \citep{familia_prediction_2015} & 0.8343 & 0.5823  \\ 
+%    \bottomrule
+% \end{tabular}
+% \end{table}
+% 
+% MCC (Matthew's Correlation Coefficient) measures the performance of a classifier (1 - classifier always properly recognizes amyloid proteins, -1 - classifier never properly recognizes amyloid proteins).
+% 
+% \end{frame}
 
 
 
-\begin{frame}{Experimental validation}
+\begin{frame}{Walidacja eksperymentalna}
 \begin{figure} 
-\includegraphics[width=0.95\textwidth]{static_figure/diagram1.eps}
+\includegraphics[width=0.95\textwidth]{static_figure/FalsePositives.eps}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Experimental validation}
+\begin{frame}{Walidacja eksperymentalna}
 \begin{figure} 
-\includegraphics[width=0.95\textwidth]{static_figure/diagram2.eps}
+\includegraphics[width=0.95\textwidth]{static_figure/ExperimentalValidation.eps}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Novel amyloid protein}
+\begin{frame}{Nowe białko amyloidowe}
 
 \includegraphics[width=0.75\textwidth]{static_figure/line.jpg}
 
-Methanospirillum sp. \citep{10.3389/fmicb.2018.02729}
+Nowy amyloid funkcjonalny produkowany przez Methanospirillum sp. \citep{10.3389/fmicb.2018.02729} został wybrany do analiz \textit{in vitro} przez AmyloGram.
 
 \end{frame}
 
 \section{Przewidywanie peptydów sygnałowych}
 
-\begin{frame}{Signal peptide prediction}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
-grid.arrange(plot_pca(pca_full) + ggtitle("Full alphabet"),
-             plot_pca(pca_naive) + ggtitle("Simplified alphabet"),
-             ncol = 2)
-@
-PCA of amino acid frequency in signal peptides.
-
-\end{frame}  
-
-
-\begin{frame}{Signal peptides}
+\begin{frame}{Peptydy sygnałowe}
 
 \begin{figure} 
-\includegraphics[width=0.75\textwidth]{static_figure/SP.png}
+\includegraphics[width=0.75\textwidth]{static_figure/SP.eps}
 \end{figure}
 
-Signal peptides:
+Peptydy sygnałowe:
         \begin{itemize}[<+->]
-          \item are short (20-30 residues) N-terminal amino acid sequences forming $\alpha$-helices,
-            \item direct proteins to the endomembrane system and next to extra- or intracellular localizations,
-            \item are universal enough to direct properly proteins in different secretory systems.
+          \item krótkie (20-30 reszt) N-końcowe fragmenty białek tworzące $\alpha$-helisy,
+            \item kierują białka do układu wewnątrzbłonowego a następne do sekrecji lub kompartymentów wewnątrzkomórkowch.
         \end{itemize}
 \end{frame}
 
 
   
-\begin{frame}{Signal peptides}
+\begin{frame}{Peptydy sygnałowe}
 
 \begin{figure} 
-\includegraphics[width=0.75\textwidth]{static_figure/SP.png}
+\includegraphics[width=0.75\textwidth]{static_figure/SP.eps}
 \end{figure}
 
-Signal peptides possess three distinct domains with variable length and characteristic amino acid composition~\citep{hegde_surprising_2006}:
-      \begin{itemize}
-        \item n-region: mostly basic residues~\citep{nielsen_prediction_1998},
-        \item h-region: strongly hydrophobic residues~\citep{nielsen_prediction_1998},
-        \item c-region: a few polar, uncharged residues.
-      \end{itemize}
+Peptydy sygnałowe są bardzo zmienne, ale zawsze zawierają trzy charakterystyczne domeny~\citep{hegde_surprising_2006}:
+\begin{itemize}
+        \item n-region: 5-8 dodatnio naładowanych reszt aminokwasowych~\citep{nielsen_prediction_1998},
+        \item h-region: bardzo hydrofobowe reszty~\citep{nielsen_prediction_1998},
+        \item c-region: kilka (3-5) polarnych reszt.
+\end{itemize}
+
 \end{frame}
 
 
 %Peptydy sygnałowe rozpoczynają się naładowanym dodatnio n-regionem, po którym występuje hydrofobowy h-region i c-region zakończony miejscem cięcia rozpoznawanym przez peptydazę sygnałową. 
 
   
-\begin{frame}{Signal peptides}  
-Amino acid composition of signal peptides differ between Plasmodium sp. and other eukaryotes. Therefore, predictors of signal peptides do not detect malarial signal peptides accurately.
+\begin{frame}{Peptydy sygnałowe}  
+Skład aminokwasowy peptydów sygnałowych u \textit{Plasmodium} sp. (do których należy m. in. zarodziec malarii) jest inny od składu peptydów sygnałowych innych eukariontów. Dlatego też narzędzia do przewidywania peptydów sygnałowych źle radzą sobie z przewidywaniem peptydów sygnałowych u \textit{Plasmodium} sp.
 
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4,results='asis'>>=
 plot_pca(pca_full)
   #ggtitle("PCA częstości aminokwasów w peptydach sygnałowych")
 @  
 
-PCA of amino acid frequency in signal peptides.
+PCA częstości aminokwasów.
 \end{frame}  
 
+\begin{frame}{signalHsmm}
 
-\begin{frame}{Signal peptide prediction}
+signalHsmm \citep{BurdukiewiczPredictionSignalPeptides2018}: zastosowanie ukrytych modeli semi-Markowa i uproszczonych alfabetów aminokwasowych w celu przewidywania peptydów sygnałowych w białkach \textit{Plasmodium} sp.
+
 \begin{figure} 
-\includegraphics[width=0.75\textwidth]{static_figure/SP.png}
+\includegraphics[width=0.75\textwidth]{static_figure/HSMMs.eps}
 \end{figure}
-SignalP 4.1~\citep{petersen_signalp_2011} combines output of two separate predictors:
-\begin{itemize}
-\item cleavage site,
-\item signal peptide.
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Signal peptide prediction}
-
-<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
-source("my_ggplot_theme.R")
-load("./results/fr_benchmark_full.RData")
-load("./results/fr_benchmark_signalHsmm.RData")
-
-dat <- unlist(fr_benchmark, recursive = FALSE) %>% 
-  unlist(recursive = FALSE) %>% 
-  do.call(rbind, .) %>% 
-  lapply(unlist) %>% 
-  data.frame() %>% 
-  rename(MCC = MCC.MCC, AUC = AUC.AUC) %>% 
-  mutate(classifier = "signalP",
-         id = rep(sort(rep(1L:20, 2)), 9),
-         sp = factor(sp, labels = c(20, 2, 4)),
-         cs = factor(cs, labels = c(20, 2, 4))) %>% 
-  mutate(sp = factor(sp, levels = levels(sp)[c(2, 3, 1)]),
-         cs = factor(cs, levels = levels(cs)[c(2, 3, 1)]))
-
-cmp_dat <- cbind(filter(dat, !plas),
-                 filter(dat, plas) %>% 
-                   select(MCC, AUC, mscsd) %>% 
-                   rename(MCC_p = MCC, AUC_p = AUC, mscsd_p = mscsd))
-
-filter(cmp_dat, sp != "4", cs != "4") %>%
-  ggplot(aes(x = MCC, y = MCC_p)) +
-  geom_point(aes(fill = sp), size = 3, shape = 21, color = "white") +
-  geom_point(aes(color = cs), size = 4.5, shape = 1, stroke = 1.2) +
-  my_theme +
-  scale_x_continuous("MCC (other eukaryotes)") +
-  scale_y_continuous("MCC (Plasmodiidae)") +
-  scale_fill_discrete("Alphabet\n(signal peptide)") +
-  scale_color_discrete("Alphabet\n(cleavage site)")
-@
-\end{frame}
-
-\begin{frame}{Prediction of culturing conditions}
-<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,fig.width=4,warning=FALSE, out.height=150,out.width=170>>=
-load("./results/venn_plots.RData")
-
-grid.draw(venn_plots[[4]])
-grid.newpage()
-@
-\url{metanogen.biotech.uni.wroc.pl}~\citep{jablonski2015methanogenic}
 
 \end{frame}
 
+\begin{frame}{Porównanie z innymi predyktorami}
 
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{rllll}
+  \toprule
+Algorytm & Czułość & Swoistość & MCC & AUC \\ 
+  \midrule
+signalP 4.1 (no tm) & 0.8235 & 
+0.9100 & 0.6872 & 
+0.8667 \\ 
+   \rowcolor[gray]{0.85}signalP 4.1 (tm) 
+& 0.6471 & 
+0.9431 & 0.6196 & 0.7951 \\ 
+  signalP 3.0 (NN) & 0.8824 
+& 0.9052 & 0.7220 & 
+0.8938 \\ 
+   \rowcolor[gray]{0.85}signalP 3.0 (HMM) 
+ & 0.6275 & 
+0.9194 & 0.5553 & 0.7734 \\ 
+  PrediSi & 0.3333 & \textbf{0.9573} 
+& 0.3849 & 0.6453 
+\\ 
+   \rowcolor[gray]{0.85}Philius 
+& 0.6078 & 
+0.9336 & 0.5684 & 0.7707 \\ 
+  Phobius & 0.6471 & 0.9289 & 
+0.5895 & 0.7880 \\ 
+   \rowcolor[gray]{0.85}signalHsmm-2010 & 0.9804 & 0.8720 & 0.7409 & 0.9262 \\ 
+  signalHsmm-2010 (ident. 50\%) & \textbf{1.0000} & 0.8768 & \textbf{0.7621} & 
+\textbf{0.9384} \\ 
+   \rowcolor[gray]{0.85}signalHsmm-2010 (pełny alfabet) & 0.8431 & 0.9005 & 0.6853 & 
+0.8718 \\ 
+  signalHsmm-1987 & 0.9216 & 0.8910 & 0.7271 & 0.9063 \\ 
+   \rowcolor[gray]{0.85}signalHsmm-1987 (ident. 50\%) & 0.9412 & 0.8768 & 0.7194 
+& 
+0.9090 \\ 
+  signalHsmm-1987 (pełny alfabet) & 0.7647 & 0.9052 & 0.6350 & 0.8350 \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+
+
+\end{frame}
+
+\begin{frame}{Porównanie z innymi predyktorami}
+signalHsmm efektywnie uczy się rozpoznawać peptydy sygnałowe na bardzo małych zbiorach danych.
+
+Przewidywania signalHsmm są na tyle uniersalne, że pozwalają również przewiywać nietypowe peptydy sygnałowe spotykane w białkach \textit{Plasmodium} sp.
+\end{frame}
+
+
+\section{Przewidywanie warunków hodowlanych metanobakterii}
+
+\begin{frame}{PhyMet\textsuperscript{2}}
+\begin{figure} 
+\includegraphics[width=0.50\textwidth]{static_figure/suplem2.eps}
+\end{figure}
+
+
+\url{metanogen.biotech.uni.wroc.pl}~\citep{jablonski2015methanogenic, BurdukiewiczPhyMet2databasetoolkit2018}
+
+\end{frame}
+
+\begin{frame}
 \begin{figure} 
 \includegraphics[width=0.95\textwidth]{static_figure/Figure2.eps}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Summary}
-\begin{enumerate}
-\item Created algorithms effectively filtering n-grams.
-
-\item Introduced new methods for search of simplified amino acids.
-
-\item Implemented novel algorithms in the \textbf{R} package \textit{biogram}.
-
-\item Applied the n-gram analysis framework to:
+\begin{frame}{Podsumowanie}
 \begin{itemize}
-\item prediction of amyloids (AmyloGram),
-\item prediction of atypical signal peptides,
-\item prediction of culture conditions of methanogenes (MethanoGram).
+\item Zastosowanie n-gramów (k-merów), czyli ciągów aminokwasów lub nukleotydów o długości $n$ okazało się skuteczne do charakterystyki sekwencji peptydów sygnałowych i amyloidogennych oraz markerów molekularnych metanogenów, a następnie do przewidywania tych peptydów oraz optymalnych warunków hodowli metanogenów w oparciu o te markery.
+\item Zastosowanie uproszczonych alfabetów aminokwasowych, w których aminokwasy są grupowane ze względu na swoje podobieństwo fizykochemiczne lub funkcjonalne, okazało się bardzo dobrym podejściem do opisu sekwencji aminokwasowych o zróżnicowanym składzie i wyeksponowania ich cech istotnych do przewidywania peptydów sygnałowych i amyloidogennych.
+\item Opracowana procedura QuiPT (\textbf{Qui}ck \textbf{P}ermutation \textbf{T}est) pozwala na szybki wybór najbardziej informatywnych n-gramów i uzyskiwanie dokładnych p-wartości.
+\item Zastosowana metodologia tworzenia uproszczonych alfabetów umożliwia identyfikowania kluczowych cech związanych z charakterystycznymi cechami peptydów.
+\item Metoda n-gramów i uproszczonych alfabetów nadaje się do trenowania algorytmów na małych zbiorach danych różnych sekwencji.
+\item Opracowany model peptydów sygnałowych wykazał wysoką hydrofobowość h-regionu i polarność n-regionu oraz dużą zawartość reszt aminokwasowych z grupą hydroksylową w c-regionie. Reszty zaburzające strukturę $\alpha$-helis, czyli glicyna i prolina są stosunkowo częste w c-regionie i bardzo rzadkie w h-regionie.
+\item Opracowany model peptydów amyloidogennych wykazał, że charakteryzują się one dużą zawartością reszt aminokwasowych alifatycznych, niepolarnych  i aromatycznych. Miejsca amyloidogenne mogą również zawierać kilka reszt polarnych, lecz nie posiadają reszt zakłócających tworzenie $\beta$-struktur, tj. glicyny, lizyny, proliny i argininy.
+\item Optymalne warunki hodowli metanogenów (czas podwojenia populacji, optymalna temperatura wzrostu, optymalne stężenia NaCl oraz optymalne pH) wykazują związki z filogenetycznym pokrewieństwem tych archeonów i mogą być przewidywane w oparciu o standardowe markery molekularne, jak 16S rRNA.
+
 \end{itemize}
-\end{enumerate}
 \end{frame}  
 
-\begin{frame}{Summary}
+\begin{frame}{Podsumowanie}
 
 Web serwery:
 \begin{itemize}
@@ -903,33 +880,32 @@ Mentorzy:
 \end{frame}
 
 
-\begin{frame}{Acknowledgments}
-Peers:
+\begin{frame}{Podziękowania}
+Współpracownicy:
 \begin{itemize}
-\item Agata Błaszczyńska (Wrocław University of Science and Technology).
 \item Anna Duda-Madej (Wrocław Medical University).
 \item Przemysław Gagat (University of Wrocław).
 \item Marlena G\k{a}sior-Głogowska (Wrocław University of Science and Technology).
 \item Sławomir Jabłoński (University of Wrocław).
 \item Rafał Kolenda (Sanger Institute).
 \item Chris Lauber (Technical University Dresden).
-\item Natalia Niedzielska (Wrocław University of Science and Technology).
 \item Piotr Sobczyk (Wrocław University of Science and Technology).
 \end{itemize}
 
 \end{frame}
 
-\begin{frame}{Acknowledgments}
-Funding:
+\begin{frame}{Podziękowania}
+Finansowanie:
 \begin{itemize}
-\item National Science Center (Preludium and Etiuda).
+\item Narodowe Centrum Nauki (Preludium i Etiuda).
 \item COST ACTION CA15110 (Harmonising standardisation strategies to increase efficiency and competitiveness of European life-science research).
 \item KNOW Wrocław Center for Biotechnology.
+\item InnoProfile-Transfer-Projekt 03IPT611X przyznanym przez Ministerstwo Edukacji i Badań Naukowych Niemiec.
 \end{itemize}
 
 \end{frame}
 
-\begin{frame}[allowframebreaks]{Publications}
+\begin{frame}[allowframebreaks]{Publikacje}
 
 \small
 \begin{enumerate}  
@@ -996,21 +972,18 @@ Chemistry}, 2014 [liczba cytacji: 13]. %  [50 points].
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{Summary}
-\begin{enumerate}
-\item Created a new algorithm for effective filtering of n-grams.
-
-\item Introduced new methods for search of simplified amino acids.
-
-\item Implemented novel algorithms in the \textbf{R} package \textit{AmyloGram}.
-
-\item Applied the n-gram analysis framework to:
+\begin{frame}{Podsumowanie}
 \begin{itemize}
-\item prediction of amyloids (AmyloGram),
-\item prediction of atypical signal peptides,
-\item prediction of culture conditions of methanogenes (MethanoGram).
+\item Zastosowanie n-gramów (k-merów), czyli ciągów aminokwasów lub nukleotydów o długości $n$ okazało się skuteczne do charakterystyki sekwencji peptydów sygnałowych i amyloidogennych oraz markerów molekularnych metanogenów, a następnie do przewidywania tych peptydów oraz optymalnych warunków hodowli metanogenów w oparciu o te markery.
+\item Zastosowanie uproszczonych alfabetów aminokwasowych, w których aminokwasy są grupowane ze względu na swoje podobieństwo fizykochemiczne lub funkcjonalne, okazało się bardzo dobrym podejściem do opisu sekwencji aminokwasowych o zróżnicowanym składzie i wyeksponowania ich cech istotnych do przewidywania peptydów sygnałowych i amyloidogennych.
+\item Opracowana procedura QuiPT (\textbf{Qui}ck \textbf{P}ermutation \textbf{T}est) pozwala na szybki wybór najbardziej informatywnych n-gramów i uzyskiwanie dokładnych p-wartości.
+\item Zastosowana metodologia tworzenia uproszczonych alfabetów umożliwia identyfikowania kluczowych cech związanych z charakterystycznymi cechami peptydów.
+\item Metoda n-gramów i uproszczonych alfabetów nadaje się do trenowania algorytmów na małych zbiorach danych różnych sekwencji.
+\item Opracowany model peptydów sygnałowych wykazał wysoką hydrofobowość h-regionu i polarność n-regionu oraz dużą zawartość reszt aminokwasowych z grupą hydroksylową w c-regionie. Reszty zaburzające strukturę $\alpha$-helis, czyli glicyna i prolina są stosunkowo częste w c-regionie i bardzo rzadkie w h-regionie.
+\item Opracowany model peptydów amyloidogennych wykazał, że charakteryzują się one dużą zawartością reszt aminokwasowych alifatycznych, niepolarnych  i aromatycznych. Miejsca amyloidogenne mogą również zawierać kilka reszt polarnych, lecz nie posiadają reszt zakłócających tworzenie $\beta$-struktur, tj. glicyny, lizyny, proliny i argininy.
+\item Optymalne warunki hodowli metanogenów (czas podwojenia populacji, optymalna temperatura wzrostu, optymalne stężenia NaCl oraz optymalne pH) wykazują związki z filogenetycznym pokrewieństwem tych archeonów i mogą być przewidywane w oparciu o standardowe markery molekularne, jak 16S rRNA.
+
 \end{itemize}
-\end{enumerate}
 \end{frame}  
 
 

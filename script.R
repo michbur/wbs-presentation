@@ -12,7 +12,7 @@ plot_pca <- function(pca)
   stat_density2d(aes(fill=taxon, alpha=..level..), 
                  color = "black", contour = TRUE, geom="polygon") +
   scale_linetype_discrete("") +
-  scale_fill_manual("", values = c("orange", "blue"), labels = c("Other eukaryotes", "Plasmodiidae")) +
+  scale_fill_manual("", values = c("orange", "blue"), labels = c("Inne eukarionty", "Plasmodiidae")) +
   scale_shape_discrete("") +
   scale_color_discrete("") +
   scale_alpha_continuous(range = c(0.25, 0.4)) +

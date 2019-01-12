@@ -135,24 +135,17 @@ n-gramy (k-tuple, k-mery):
 
 \begin{frame}
 
-\begin{table}[ht]
-\begin{tabular}{rllllllllll}
-  \hline
- & P1 & P2 & P3 & P4 & P5 & P6 & P7 & P8 & P9 & P10 \\ 
-  \hline
-\rowcolor{red!40} S1 & H & T & E & S & Q & R & C & W & Y & M \\ 
-\rowcolor{blue!40}  S2 & A & Q & R & G & N & D & K & I & P & V \\ 
-   \hline
-\end{tabular}
-\end{table}
+\textcolor{red}{\texttt{HTESQRCWYM}}
+
+\textcolor{blue}{\texttt{AQRGNDKIPV}}
 
 Przykłady n-gramów:
 
 \begin{enumerate}
-    \item \textcolor{red}{H}, \textcolor{blue}{A}, \textcolor{red}{T}, \textcolor{blue}{Q}
-    \item \textcolor{red}{HT}, \textcolor{blue}{AQ}, \textcolor{red}{TE}, \textcolor{blue}{QR}
-    \item \textcolor{red}{H-E}, \textcolor{blue}{A-R}, \textcolor{red}{T-S}, \textcolor{blue}{Q-G}
-    \item \textcolor{red}{H--SQ}, \textcolor{blue}{A--GN}, \textcolor{red}{T--QR}, \textcolor{blue}{Q--ND}
+    \item \textcolor{red}{\texttt{H}}, \textcolor{blue}{\texttt{A}}, \textcolor{red}{\texttt{T}}, \textcolor{blue}{\texttt{Q}}
+    \item \textcolor{red}{\texttt{HT}}, \textcolor{blue}{\texttt{AQ}}, \textcolor{red}{\texttt{TE}}, \textcolor{blue}{\texttt{QR}}
+    \item \textcolor{red}{\texttt{H-E}}, \textcolor{blue}{\texttt{A-R}}, \textcolor{red}{\texttt{T-S}}, \textcolor{blue}{\texttt{Q-G}}
+    \item \textcolor{red}{\texttt{H--SQ}}, \textcolor{blue}{\texttt{A--GN}}, \textcolor{red}{\texttt{T--QR}}, \textcolor{blue}{\texttt{Q--ND}}
 \end{enumerate}
 
 \end{frame}

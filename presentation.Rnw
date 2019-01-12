@@ -652,6 +652,9 @@ AmyloGram & \textbf{0.8972} & \textbf{0.6307} \\
 
 Klasyfikator wytrenowany z wykorzystaniem najlepszego uproszczonego alfabetu, AmyloGram, został porównany z innymi narzędziami do przewidywania amyloidów z użyciem zewnętrznego zbioru danych \textit{pep424}.
 
+Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961.
+
+
 \end{frame}
 
 % \begin{frame}{Benchmark results}
@@ -809,20 +812,24 @@ Przewidywania signalHsmm są na tyle uniersalne, że pozwalają również przewi
 
 \section{Przewidywanie warunków hodowlanych metanobakterii}
 
-\begin{frame}{PhyMet\textsuperscript{2}}
+\begin{frame}{PhyMet\textsuperscript{2} (phymet2.biotech.uni.wroc.pl)}
 \begin{figure} 
 \includegraphics[width=0.50\textwidth]{static_figure/suplem2.eps}
 \end{figure}
 
 
-\url{metanogen.biotech.uni.wroc.pl}~\citep{jablonski2015methanogenic, BurdukiewiczPhyMet2databasetoolkit2018}
+\small{Burdukiewicz et al. (2018). PhyMet2: a database and toolkit for phylogenetic and metabolic analyses of methanogens. Environmental Microbiology Reports 10, 378–382.}
 
 \end{frame}
 
 \begin{frame}
 \begin{figure} 
-\includegraphics[width=0.95\textwidth]{static_figure/Figure2.eps}
+\includegraphics[width=0.85\textwidth]{static_figure/Figure2.eps}
 \end{figure}
+
+\small{Burdukiewicz et al. (2018). PhyMet2: a database and toolkit for phylogenetic and metabolic analyses of methanogens. Environmental Microbiology Reports 10, 378–382.}
+
+
 \end{frame}
 
 \begin{frame}{Podsumowanie}

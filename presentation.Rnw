@@ -13,6 +13,8 @@
 
 \newcommand\Fontvi{\fontsize{6}{7.2}\selectfont}
 
+\newcommand{\btVFill}{\vskip0pt plus 1filll}
+
 \title{Przewidywanie właściwości sekwencji biologicznych w oparciu o analizę n-gramów}
 \date{}
 \author{Michał Burdukiewicz}
@@ -135,17 +137,46 @@ n-gramy (k-tuple, k-mery):
 
 \begin{frame}
 
-\textcolor{red}{\texttt{HTESQRCWYM}}
+<<echo = FALSE, message=FALSE,warning=FALSE>>=
 
-\textcolor{blue}{\texttt{AQRGNDKIPV}}
+seq1 <- c("f", "k", "v", "w", "p", "d", "h", "g", "s", "g")
+seq2 <- c("y", "m", "c", "i", "y", "r", "a", "q", "t", "n")
 
-Przykłady n-gramów:
+sample_seq <- matrix(toupper(c(seq1, seq2)), ncol = 10, byrow = TRUE)
+
+generate_ngrams <- function(x) 
+  decode_ngrams(x) %>% 
+  gsub("_", "-", x = .) %>% 
+  paste0(paste0('\\textcolor{',  colors, '}{\\texttt{'), .) %>% 
+  paste0(., "}}") %>% 
+  .[1L:4] %>% 
+  paste0(collapse = ", ") 
+
+colors <- c("red", "blue")
+
+przyklady <- list(seq2ngrams(sample_seq, 1, aa_v, d = 0), 
+                  seq2ngrams(sample_seq, 2, aa_v, d = 0), 
+                  seq2ngrams(sample_seq, 2, aa_v, d = 1), 
+                  seq2ngrams(sample_seq, 3, aa_v, d = c(2, 0)))
+
+colored_ngrams <- lapply(przyklady, generate_ngrams) 
+
+
+@
+
+Peptyd I: \textcolor{red}{\texttt{\Sexpr{toupper(paste0(seq1, collapse = ""))}}}
+
+Peptyd II: \textcolor{blue}{\texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}}}
+
+\medskip
+
+Przykłady n-gramów uzyskanych z peptydów I i II:
 
 \begin{enumerate}
-    \item \textcolor{red}{\texttt{H}}, \textcolor{blue}{\texttt{A}}, \textcolor{red}{\texttt{T}}, \textcolor{blue}{\texttt{Q}}
-    \item \textcolor{red}{\texttt{HT}}, \textcolor{blue}{\texttt{AQ}}, \textcolor{red}{\texttt{TE}}, \textcolor{blue}{\texttt{QR}}
-    \item \textcolor{red}{\texttt{H-E}}, \textcolor{blue}{\texttt{A-R}}, \textcolor{red}{\texttt{T-S}}, \textcolor{blue}{\texttt{Q-G}}
-    \item \textcolor{red}{\texttt{H--SQ}}, \textcolor{blue}{\texttt{A--GN}}, \textcolor{red}{\texttt{T--QR}}, \textcolor{blue}{\texttt{Q--ND}}
+    \item 1-gramy: \Sexpr{colored_ngrams[[1]]},
+    \item 2-gramy: \Sexpr{colored_ngrams[[2]]},
+    \item 2-gramy (nieciągłe): \Sexpr{colored_ngrams[[3]]},
+    \item 3-gramy (nieciągłe): \Sexpr{colored_ngrams[[4]]}.
 \end{enumerate}
 
 \end{frame}
@@ -154,7 +185,7 @@ Przykłady n-gramów:
 
 \begin{frame}
 <<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
-L <- 5
+L <- 1
 m <- 20 
 m2 <- 6
 n <- 1:5
@@ -169,14 +200,14 @@ ggplot(dat, aes(x = n, y = n_max, color = m, label = formatC(n_max, digits = 4))
   geom_point(size=4, shape=16) +
   geom_text(size = 4, vjust = -1.5, hjust = "inward", color = "red") +
   coord_cartesian(ylim = c(1, 4.5e7)) +
-  scale_x_continuous("n", breaks = 0L:5) +
-  scale_y_continuous("Całkowita liczba n-gramów (skala logarytmiczna)",
+  scale_x_continuous("Długość n-gramu (n)", breaks = 0L:5) +
+  scale_y_continuous("Liczba potencjalnych n-gramów (skala logarytmiczna)",
                      trans = "log10") +
   scale_color_discrete("Rozmiar alfabetu") +
   my_theme
 @
 
-Dłuższe n-gramy są bardziej informatywne, ale tworzą większe przestrzenie atrybutów.
+Dłuższe n-gramy są bardziej informatywne, ale tworzą większe przestrzenie atrybutów, które są trudniejsze do analizy.
 
 \end{frame}
 
@@ -211,9 +242,7 @@ ggplot(times_dat, aes(x = size, y = value, color = variable)) +
 QuiPT (dostępny jako funkcja w pakiecie \textbf{biogram}) jest szybszy niż klasyczne testy permutacyjne.
 \end{frame}
 
-\subsection{Uproszczone alfabety}
-
-\begin{frame}
+\begin{frame}{Uproszczone alfabety}
 Uproszczone alfabety:
 \begin{itemize}
 \item aminokwasy są grupowane w większe zbiory na podstawie 
@@ -224,22 +253,16 @@ określonych kryteriów,
 \end{frame}
 
 
-\begin{frame}  
-Poniższe peptydy wydają się być całkowicie inne pod względem składu aminokwasowego.
+\begin{frame}{Uproszczone alfabety}
+Poniższe peptydy wydają się być całkowicie różne pod względem składu aminokwasowego.
 
-
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.height=4.5,results='asis'>>=
-seq1 <- c("f", "k", "v", "w", "p", "d", "h", "g", "s", "g")
-seq2 <- c("y", "m", "c", "i", "y", "r", "a", "q", "t", "n")
-@
-
-Sekwencja I: 
+Peptyd I: 
 
 \texttt{\Sexpr{toupper(paste0(seq1, collapse = ""))}}
 
 \medskip
 
-Sekwencja II: 
+Peptyd II: 
 
 \texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}}
 
@@ -256,13 +279,13 @@ seq_dat <- rbind(data.frame(seq = "Sekwencja I", pos = 1L:10,
 
 ggplot(seq_dat, aes(x = factor(pos), y = val, label = toupper(aa), 
                     group = seq, colour = hydroph)) +
-  geom_text(vjust = "outward", size = 4, show_guide = FALSE) +
+  geom_text(vjust = "outward", size = 4.5, show_guide = FALSE, fontface = "bold") +
   #geom_point(size = 0) +
   geom_line(linetype = "dotted", color = "black") +
   facet_wrap(~ seq, ncol = 1) +
   scale_x_discrete("Pozycja") +
   scale_y_continuous("Hydrofobowość (Argos et al., 1982)", expand = c(.1, .1)) +
-  #scale_color_discrete("Hydrofobowy")
+  scale_color_manual(values = c("green", "orange")) +
   #guides(colour = guide_legend(override.aes = list(size=4))) +
   my_theme 
 @
@@ -275,25 +298,38 @@ ggplot(seq_dat, aes(x = factor(pos), y = val, label = toupper(aa),
 \toprule
 Grupa & Aminokwasy \\ 
 \midrule
-  1 & C, I, L, K, M, F, P, W, Y, V \\ 
-\rowcolor[gray]{0.85}  2 & A, D, E, G, H, N, Q, R, S, T \\ 
+ \textcolor{green}{1} & \textcolor{green}{C, I, L, K, M, F, P, W, Y, V} \\ 
+ \textcolor{orange}{2} & \textcolor{orange}{A, D, E, G, H, N, Q, R, S, T} \\ 
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{columns}
-\begin{column}{0.44\textwidth}
+\begin{column}{0.15\textwidth}
  
-Sekwencja I: \texttt{\Sexpr{toupper(paste0(seq1, collapse = ""))}} \textrightarrow
+Peptyd I: 
 
-Sekwencja II: \texttt{\Sexpr{toupper(paste0(seq2, collapse = ""))}} \textrightarrow
+Peptyd II: 
 
 \end{column}
-\begin{column}{0.5\textwidth}  %%<--- here
+\begin{column}{0.1\textwidth}
 
-\texttt{\Sexpr{paste0(c(rep(1, 5), rep(2, 5)), collapse = "")}}
+\texttt{\textcolor{green}{\Sexpr{toupper(paste0(seq1[1L:5], collapse = ""))}}}\texttt{\textcolor{orange}{\Sexpr{toupper(paste0(seq1[6L:10], collapse = ""))}}} 
 
-\texttt{\Sexpr{paste0(c(rep(1, 5), rep(2, 5)), collapse = "")}}
+\texttt{\textcolor{green}{\Sexpr{toupper(paste0(seq2[1L:5], collapse = ""))}}}\texttt{\textcolor{orange}{\Sexpr{toupper(paste0(seq2[6L:10], collapse = ""))}}} 
+
+\end{column}
+\begin{column}{0.02\textwidth}  %%<--- here
+
+\textrightarrow
+
+\textrightarrow
+\end{column}
+\begin{column}{0.1\textwidth}  %%<--- here
+
+\texttt{\textcolor{green}{\Sexpr{toupper(paste0(rep(1, 5), collapse = ""))}}}\texttt{\textcolor{orange}{\Sexpr{toupper(paste0(rep(2, 5), collapse = ""))}}}
+
+\texttt{\textcolor{green}{\Sexpr{toupper(paste0(rep(1, 5), collapse = ""))}}}\texttt{\textcolor{orange}{\Sexpr{toupper(paste0(rep(2, 5), collapse = ""))}}}
 \end{column}
 \end{columns}
 \end{frame}  
@@ -341,10 +377,18 @@ AmyloGram: oparte na analizie n-gramowej narzędzie do przewidywania amyloidów~
 \end{frame}
 
 
-    \begin{frame}
+\begin{frame}
+
+\vspace{2cm}
+
 \begin{figure} 
 \includegraphics[width=0.95\textwidth]{static_figure/ngram1.eps}
 \end{figure}
+
+\btVFill
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
+
   \end{frame}
 
 \begin{frame}{Walidacja krzyżowa}
@@ -375,6 +419,10 @@ ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
 @
 %AUC (Area Under the Curve) measures the performance of a classifier (1 - classifier always properly recognizes amyloid proteins, 0 - classifier never properly recognizes amyloid proteins).
 
+\btVFill
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
+
 \end{frame}
 
 
@@ -384,10 +432,14 @@ Opublikowano kilka uproszczonych alfabetów, które w założeniu miały służy
   \end{frame}
   
     \begin{frame}{Standardowe uproszczone alfabety}
+\vspace{2cm}
 \begin{figure} 
 \includegraphics[width=0.95\textwidth]{static_figure/ngram2.eps}
 \end{figure}
 
+\btVFill
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
 
   \end{frame}
 
@@ -412,6 +464,9 @@ ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
 
 Standardowe alfabety aminokwasowe nie poprawiają jakości predykcji amyloidów.
   
+\btVFill
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}  
   \end{frame}
 
 
@@ -428,12 +483,19 @@ Standardowe alfabety aminokwasowe nie poprawiają jakości predykcji amyloidów.
   \item 524 284 uproszczonych alfabetów aminokwasowych o różnej wielkości (od 3 do 6 grup).
   \end{itemize}
 
+\btVFill
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
     \end{frame}
   
     \begin{frame}{Nowe uproszczone alfabety}
 \begin{figure} 
 \includegraphics[width=0.95\textwidth]{static_figure/ngram3.eps}
 \end{figure}
+
+\btVFill
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
   \end{frame}
 
 
@@ -462,7 +524,9 @@ ggplot(subdat2, aes(x = len_range, y = AUC_mean)) +
 %the 0.25 and 0.75 quartiles. The bar inside the box represents the median. The 
 %gray circles correspond to the simplified alphabets with the AUC outside the 0.95 
 %confidence interval.
+\btVFill
 
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
   
 \end{frame}
 
@@ -485,6 +549,9 @@ ggplot(subdat, aes(x = len_range, y = AUC_mean)) +
   my_theme + 
   coord_flip()
 @
+\btVFill
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
 \end{frame}
 
 \begin{frame}{Najlepszy uproszczony alfabet}
@@ -506,7 +573,9 @@ Grupa & Aminokwasy \\
    \bottomrule
 \end{tabular}
 \end{table}
-   
+   \btVFill
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
    \end{frame}
 
      \begin{frame}{Najlepszy uproszczony alfabet}
@@ -527,6 +596,9 @@ Grupa & Aminokwasy \\
 \end{table}
    
 Grupy 3 i 4 - aminokwasy hydrofobowe.  
+\btVFill
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
    \end{frame}
   
   
@@ -548,7 +620,9 @@ Grupa & Aminokwasy \\
 \end{table}
    
 Grupa 2 - reszty aminokwasowe zakłócające $\beta$-struktury.  
-   
+   \btVFill
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
    \end{frame}  
    
 \begin{frame}{Podobieństwo alfabetów i jakość predykcji}
@@ -586,6 +660,8 @@ simil_plot <- ggplot(si_dat, aes(x=si, y=AUC_mean)) +
 print(simil_plot)
 @
 Similarity index~\citep{stephenson_unearthing_2013} mierzy podobieństwo między dwoma uproszczonymi alfabetami (1:~identyczne alfabety, 0:~zupełnie niepodobne alfabety).
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
 \end{frame}
 
 
@@ -595,6 +671,7 @@ Similarity index~\citep{stephenson_unearthing_2013} mierzy podobieństwo między
 print(simil_plot)
 @
 Korelacja między similarity index i średnim AUC jest istotna ($\textrm{p-value} \leq 2.2^{-16}$; $\rho = 0.51$).
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
 \end{frame}
    
 \begin{frame}{}
@@ -603,7 +680,7 @@ Czy informatywne n-gramy znalezione przez QuiPT są związane z amyloidogennośc
 
 
 \begin{frame}{Informatywne n-gramy}
-<<echo = FALSE,message=FALSE,fig.align='center',fig.width=14,fig.height=6,warning=FALSE>>=
+<<echo = FALSE,message=FALSE,fig.align='center',fig.width=11.5,warning=FALSE>>=
 ngram_freq <- read.csv("ngram_freq.csv")
 
 ngram_freq_plot <- mutate(ngram_freq, decoded_name = gsub("_", "-", decoded_name)) %>%
@@ -624,12 +701,15 @@ ggplot(ngram_freq_plot, aes(x = decoded_name, y = value)) +
   scale_shape_manual("Motyw:", breaks = c("Amyloidogenny", "Nieamyloidogenny"), values = c(16, 17, NA)) +
   scale_y_continuous("Częstość") +
   scale_x_discrete("") +
-  my_theme +
-  theme(panel.grid.major.y = element_line(color = "lightgrey", size = 0.5)) 
+  theme_bw(base_size = 18) +
+  theme(panel.grid.major.y = element_line(color = "lightgrey", size = 0.5),
+        legend.position = "bottom") 
 
 @
 
 Spośród 65 najbardziej informatywnych n-gramów, 15 (23\%) jest również obecnych w motywach aminokwasowych znalezionych ekperymentalnie~\citep{paz_sequence_2004}.
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
 \end{frame}
 
 
@@ -651,8 +731,8 @@ AmyloGram & \textbf{0.8972} & \textbf{0.6307} \\
 \end{table}
 
 Klasyfikator wytrenowany z wykorzystaniem najlepszego uproszczonego alfabetu, AmyloGram, został porównany z innymi narzędziami do przewidywania amyloidów z użyciem zewnętrznego zbioru danych \textit{pep424}.
-
-Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961.
+\btVFill
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
 
 
 \end{frame}

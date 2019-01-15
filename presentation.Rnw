@@ -728,7 +728,7 @@ Klasyfikator wytrenowany z wykorzystaniem najlepszego uproszczonego alfabetu, Am
 
 \includegraphics[width=0.75\textwidth]{static_figure/line.jpg}
 
-Nowy amyloid funkcjonalny produkowany przez Methanospirillum sp. \citep{10.3389/fmicb.2018.02729} został wybrany do analiz \textit{in vitro} przez AmyloGram.
+Nowy amyloid funkcjonalny produkowany przez Methanospirillum sp. \citep{10.3389/fmicb.2018.02729} został wybrany do analiz \textit{in vitro} dzięki wskazaniom AmyloGramu.
 
 \end{frame}
 
@@ -790,6 +790,19 @@ signalHsmm \citep{BurdukiewiczPredictionSignalPeptides2018}: zastosowanie ukryty
 \end{frame}
 
 \begin{frame}{Porównanie z innymi predyktorami}
+signalHsmm efektywnie uczy się rozpoznawać peptydy sygnałowe na bardzo małych zbiorach danych.
+
+Przewidywania signalHsmm są na tyle uniersalne, że pozwalają również przewiywać nietypowe peptydy sygnałowe spotykane w białkach \textit{Plasmodium} sp.
+
+W celu porównania się z innymi klasyfikatorami, powstały dwie iteracje signalHsmm: signalHsmm-2010, oparty na peptydach sygnałowych użytych do uczenia signalP 4.1~citep{petersen_signalp_2011} oraz signalHsmm-1987, oparty na danych dostępnych w 1987, kiedy opublikowano pierwsze narzędzie do przewidywania peptydów sygnałowych.
+
+\btVFill
+
+\tiny Burdukiewicz, M., Sobczyk, P., Chilimoniuk, J., Gagat, P., and Mackiewicz, P. (2018). Prediction of Signal Peptides in Proteins from Malaria Parasites. International Journal of Molecular Sciences 19, 3709.
+
+\end{frame}
+
+\begin{frame}{Porównanie z innymi predyktorami}
 
 \begin{table}[H]
 \centering
@@ -834,17 +847,6 @@ signalP 4.1 (no tm) & 0.8235 &
 
 \tiny Burdukiewicz, M., Sobczyk, P., Chilimoniuk, J., Gagat, P., and Mackiewicz, P. (2018). Prediction of Signal Peptides in Proteins from Malaria Parasites. International Journal of Molecular Sciences 19, 3709.
 
-
-\end{frame}
-
-\begin{frame}{Porównanie z innymi predyktorami}
-signalHsmm efektywnie uczy się rozpoznawać peptydy sygnałowe na bardzo małych zbiorach danych.
-
-Przewidywania signalHsmm są na tyle uniersalne, że pozwalają również przewiywać nietypowe peptydy sygnałowe spotykane w białkach \textit{Plasmodium} sp.
-
-\btVFill
-
-\tiny Burdukiewicz, M., Sobczyk, P., Chilimoniuk, J., Gagat, P., and Mackiewicz, P. (2018). Prediction of Signal Peptides in Proteins from Malaria Parasites. International Journal of Molecular Sciences 19, 3709.
 
 \end{frame}
 
@@ -896,9 +898,15 @@ Pakiety \textbf{R}:
 \item \textbf{AmyloGram}: \url{https://cran.r-project.org/package=AmyloGram}.
 \item \textbf{signalHsmm}: \url{https://cran.r-project.org/package=signalHsmm}.
 \end{itemize}
-
-
 \end{frame}  
+
+\begin{frame}{Podsumowanie}
+\begin{figure} 
+\includegraphics[width=0.75\textwidth]{static_figure/r1.png}
+\includegraphics[width=0.75\textwidth]{static_figure/r2.png}
+\end{figure}
+\end{frame}
+
 
 \begin{frame}{Podziękowania}
 Mentorzy:
@@ -906,6 +914,7 @@ Mentorzy:
 \item \textbf{Paweł Mackiewicz (Uniwersytet Wrocławski)}.
 \item Małgorzata Kotulska (Politechnika Wrocławska).
 \item Marcin Łukaszewicz (Uniwersytet Wrocławski).
+\item Andrzej Dąbrowski (Uniwersytet Wrocławski).
 \item Stefan Rödiger (Brandenburg University of Technology Cottbus-Senftenberg).
 \item Henrik Nielsen (Technical University of Denmark).
 \item Lars Kaderali (University of Greifswald).
@@ -1026,6 +1035,76 @@ Chemistry}, 2014.
   \bibliography{references}
 \end{frame}  
 
+
+\begin{frame}{Upraszczanie alfabetów i QuiPT - wyjaśnienia}
+
+\begin{itemize}
+\item QuiPT został zaprojektowany do zadań typowych w przewidywaniu właściwości sekwencji, gdzie często stosuje się dane binarne.
+\item Zwykłe metody upraszczania alfabetów zalecają duże (np. powyżej 1000 białek zawierających ok. 26000 reszt aminokwasowych) zbiory danych. Bacardit, J., Stout, M., Hirst, J.D., Valencia, A., Smith, R.E., and Krasnogor, N. (2009). Automated Alphabet Reduction for Protein Datasets. BMC Bioinformatics 10, 6.
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}[allowframebreaks]{signalHsmm - wyjaśnienia}
+
+\begin{itemize}
+\item Trudno stworzyć program lepszy dla ogólu peptydów sygnałowych niż signalP 4.1, ponieważ większość z nich jest często najpierw idenyfikowana \textit{in silico} przez signalP 4.1 (komunikacja ustna: H. Nielsen)
+
+\item Nie ma dużego zbioru danych peptydów sygnałowych w białkach \textit{Plasmodium} sp. potwierdzonych eksperymentalnie. Inne narzędzia np. ApicoAP też wykorzystują zbiór danych użyty do walidacji signalHsmm. Właściwości tych potencjalnych peptydów sygnalowych są ewidentne, a same peptydy występują przy białkach ulegających sekrecji.
+
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[allowframebreaks]{AmyloGram - wyjaśnienia}
+
+Zdefiniowane długości n-gramów pochodzą z prac eksperymentalnych definiujących motywy amyloidogenne:
+\begin{itemize}
+\item de Groot, N.S., Parella, T., Aviles, F.X., Vendrell, J., and Ventura, S. (2007). \textit{Ile-Phe Dipeptide Self-Assembly: Clues to Amyloid Formation}. Biophysical Journal 92, 1732–1741.
+\item Ivanova, M.I., Thompson, M.J., and Eisenberg, D. (2006). \textit{A systematic screen of β2-microglobulin and insulin for amyloid-like segments}. Proc Natl Acad Sci U S A 103, 4079–4082.
+\item Sant’Anna, R., Fernández, M.R., Batlle, C., Navarro, S., de Groot, N.S., Serpell, L., and Ventura, S. (2016). Characterization of Amyloid Cores in Prion Domains. Scientific Reports 6, 34274.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{AmyloGram - wyjaśnienia}
+\begin{table}[ht]
+\centering
+
+\begin{tabular}{ccccc}
+  \toprule
+Program & AUC & MCC \\ 
+  \midrule
+AmyloGram & \textbf{0.8972} & \textbf{0.6307} \\ 
+  \rowcolor{white}PASTA 2.0 \citep{walsh_pasta_2014} & 0.8550 & 0.4291  \\ 
+   FoldAmyloid \citep{garbuzynskiy_foldamyloid:_2010} & 0.7351 & 0.4526  \\ 
+  \rowcolor{white}APPNN \citep{familia_prediction_2015} & 0.8343 & 0.5823  \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+
+Klasyfikator wytrenowany z wykorzystaniem najlepszego uproszczonego alfabetu, AmyloGram, został porównany z innymi narzędziami do przewidywania amyloidów z użyciem zewnętrznego zbioru danych \textit{pep424}.
+\btVFill
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
+\end{frame}
+
+\begin{frame}{MethanoGram - wyjaśnienia}
+
+\begin{itemize}
+
+\item MethanoGram trafnie przewiduje tylko dwa spośród czterech wybranych warunków hodowlanych, ale są to jedne z kluczowych parametrów.
+
+\item Narzędzie jest dedykowane dla wąskich grup mikroorganizmów. Jego zasada działania w oparciu o markery molekularne, utrudnia zastosowanie do szerszych grup.
+
+\end{itemize}
+
+\end{frame}
+
+
 \begin{frame}[allowframebreaks]{QuiPT - wyjaśnienia}
 
 \begin{enumerate}
@@ -1077,15 +1156,53 @@ $\operatorname{I}(X;Y) = \sum_{y \in \mathcal Y} \sum_{x \in \mathcal X}
 
 \end{frame}
 
-\begin{frame}{signalHsmm}
+\begin{frame}[allowframebreaks]{Upraszczanie alfabetów - wyjaśnienia}
 
-W literaturze predmiotu preferowane są modele o największej czułości. Wybrany alfabet zapewnia zarówno największą czułość jak i AUC.
+\begin{itemize}
+\item Grupowanie aminokwasów: odleglość euklidesowa, normalizacja 0-1.
 
-Odchylenia standardowe uzyskanych alfabetów zostały obliczone w drodze 10-krotnej walidacji krzyżowej. Ich niewielka zmienność wynika z dużej stabilności uzyskanego klasyfikatora, którą można zaobserwować porównując iterację uczoną na danych z 1987 roku i 2010 roku.
+\item Uzyskanie reprezentacji alfabetu aminokwasowego dla małej liczby sekwencji nie jest możliwe za pomocą metod głębokich.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[allowframebreaks]{signalHsmm - wyjaśnienia}
+
+\begin{itemize}
+\item W literaturze predmiotu preferowane są modele o największej czułości (Petersen, T.N., Brunak, S., von Heijne, G., and Nielsen, H. (2011). SignalP 4.0: Discriminating Signal Peptides from Transmembrane Regions. Nature Methods 8, 785). Wybrany alfabet zapewnia zarówno największą czułość jak i AUC.
+
+\item Odchylenia standardowe uzyskanych alfabetów zostały obliczone w drodze 10-krotnej walidacji krzyżowej. Ich niewielka zmienność wynika z dużej stabilności uzyskanego klasyfikatora, którą można zaobserwować porównując iterację uczoną na danych z 1987 roku i 2010 roku.
  
-Wnioski na stronie 40 wynikają z wielu tabel i rysunków, przykładowo rys. 9.
+\item Wnioski na stronie 40 wynikają z wielu tabel i rysunków, przykładowo rys. 9.
 
-PCA: przedstawone na rysunku dwa pierwsze komponenty składowe wyjaśniają 40\% wariancji.
+\item PCA: przedstawone na rysunku dwa pierwsze komponenty składowe wyjaśniają 40\% wariancji.
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{AmyloGram - wyjaśnienia}
+
+<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
+select(ngram_freq_plot, -association) %>% 
+  dcast(decoded_name ~ variable) %>% 
+  mutate(log_odd = log(Amyloid/Nieamyloid)) %>% 
+  ggplot(aes(x = decoded_name, y = log_odd)) +
+  geom_col() +
+  scale_y_continuous("Log odds ration") +
+  scale_x_discrete("") +
+  theme_bw(base_size = 18) +
+  theme(panel.grid.major.y = element_line(color = "lightgrey", size = 0.5),
+        legend.position = "bottom") 
+@
+
+\end{frame}
+
+
+\begin{frame}{MethanoGram - wyjaśnienia}
+
+Mały zbiór danych (61 gatunków) nie pozwala na tworzenie modelu uwzględniającego zbyt wiele cech.
 
 \end{frame}
 
@@ -1137,5 +1254,4 @@ print(simil_plot)
 Korelacja między similarity index i średnim AUC jest istotna ($\textrm{p-value} \leq 2.2^{-16}$; $\rho = 0.51$).
 \tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
 \end{frame}
-
 \end{document}

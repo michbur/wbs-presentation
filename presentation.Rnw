@@ -200,7 +200,7 @@ ggplot(dat, aes(x = n, y = n_max, color = m, label = formatC(n_max, digits = 4))
   geom_point(size=4, shape=16) +
   geom_text(size = 4, vjust = -1.5, hjust = "inward", color = "red") +
   coord_cartesian(ylim = c(1, 4.5e7)) +
-  scale_x_continuous("Długość n-gramu (n)", breaks = 0L:5) +
+  scale_x_continuous("Długość ciągłego n-gramu (n)", breaks = 0L:5) +
   scale_y_continuous("Liczba potencjalnych n-gramów (skala logarytmiczna)",
                      trans = "log10") +
   scale_color_discrete("Rozmiar alfabetu") +
@@ -625,55 +625,7 @@ Grupa 2 - reszty aminokwasowe zakłócające $\beta$-struktury.
 \tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
    \end{frame}  
    
-\begin{frame}{Podobieństwo alfabetów i jakość predykcji}
-Czy alfabety podobne do najlepszego uproszczonego alfabetu również dobrze przewidują amyloidy?
-\end{frame}
 
-\begin{frame}{Similarity index}
-<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
-si_dat <- read.csv2("si_dat.csv")
-
-levels(si_dat[["et"]]) <- c("Najlepszy uproszczony alfabet", "Uproszczony alfabet", 
-                             "Pełny alfabet", "Standardowy uproszczony alfabet", 
-                            "Standardowy uproszczony alfabet")
-
-
-simil_plot <- ggplot(si_dat, aes(x=si, y=AUC_mean)) + 
-  # geom_point(data = si_dat, 
-  #            aes(x = si, y = AUC_mean, color = et, shape = et), size = 4) +
-  #geom_density_2d(color = "black", contour = TRUE) +
-    geom_bin2d(bins = 30) +
-  # stat_density2d(aes(fill=..level..), color = "black",
-  #                contour = TRUE, geom = "polygon", alpha = 0.5, binwidth = 50, bins = 10) +
-  scale_fill_continuous("Liczba alfabetów", low = "gold", high = "goldenrod4") +
-  xlab("Similarity index") +
-  ylab("AUC") +
-  my_theme +
-  geom_point(data = droplevels(filter(si_dat, et != "Uproszczony alfabet")),
-             aes(x = si, y = AUC_mean, color = et, shape = et), size = 4) +
-  guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2), 
-         fill = guide_colorbar(barwidth = unit(5, "line"))) +
-  scale_shape_manual("", values = c(16, 15, 15), drop = FALSE) +
-  scale_color_manual("", values = c("red", "green", "blue"), drop = FALSE) +
-  theme(panel.grid.major = element_line(color = "lightgrey", size = 0.5)) 
-
-print(simil_plot)
-@
-Similarity index~\citep{stephenson_unearthing_2013} mierzy podobieństwo między dwoma uproszczonymi alfabetami (1:~identyczne alfabety, 0:~zupełnie niepodobne alfabety).
-
-\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
-\end{frame}
-
-
-
-\begin{frame}{Similarity index}
-<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
-print(simil_plot)
-@
-Korelacja między similarity index i średnim AUC jest istotna ($\textrm{p-value} \leq 2.2^{-16}$; $\rho = 0.51$).
-\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
-\end{frame}
-   
 \begin{frame}{}
 Czy informatywne n-gramy znalezione przez QuiPT są związane z amyloidogennością?
 \end{frame}
@@ -880,6 +832,8 @@ signalP 4.1 (no tm) & 0.8235 &
 \end{tabular}
 \end{table}
 
+\tiny Burdukiewicz, M., Sobczyk, P., Chilimoniuk, J., Gagat, P., and Mackiewicz, P. (2018). Prediction of Signal Peptides in Proteins from Malaria Parasites. International Journal of Molecular Sciences 19, 3709.
+
 
 \end{frame}
 
@@ -887,18 +841,23 @@ signalP 4.1 (no tm) & 0.8235 &
 signalHsmm efektywnie uczy się rozpoznawać peptydy sygnałowe na bardzo małych zbiorach danych.
 
 Przewidywania signalHsmm są na tyle uniersalne, że pozwalają również przewiywać nietypowe peptydy sygnałowe spotykane w białkach \textit{Plasmodium} sp.
+
+\btVFill
+
+\tiny Burdukiewicz, M., Sobczyk, P., Chilimoniuk, J., Gagat, P., and Mackiewicz, P. (2018). Prediction of Signal Peptides in Proteins from Malaria Parasites. International Journal of Molecular Sciences 19, 3709.
+
 \end{frame}
 
 
-\section{Przewidywanie warunków hodowlanych metanobakterii}
+\section{Przewidywanie warunków hodowlanych metanogenów}
 
-\begin{frame}{PhyMet\textsuperscript{2} (phymet2.biotech.uni.wroc.pl)}
+\begin{frame}{Methanogram: narzędzie predykcyjne bazy PhyMet\textsuperscript{2} (phymet2.biotech.uni.wroc.pl)}
 \begin{figure} 
-\includegraphics[width=0.50\textwidth]{static_figure/suplem2.eps}
+\includegraphics[width=0.45\textwidth]{static_figure/suplem2.eps}
 \end{figure}
 
 
-\small{Burdukiewicz et al. (2018). PhyMet2: a database and toolkit for phylogenetic and metabolic analyses of methanogens. Environmental Microbiology Reports 10, 378–382.}
+\tiny{Burdukiewicz, M., Gagat, P., Jabłoński, S., Chilimoniuk, J., Gaworski, M., Mackiewicz, P., and Łukaszewicz, M. (2018). PhyMet2: a database and toolkit for phylogenetic and metabolic analyses of methanogens. Environmental Microbiology Reports 10, 378–382.}
 
 \end{frame}
 
@@ -907,24 +866,19 @@ Przewidywania signalHsmm są na tyle uniersalne, że pozwalają również przewi
 \includegraphics[width=0.85\textwidth]{static_figure/Figure2.eps}
 \end{figure}
 
-\small{Burdukiewicz et al. (2018). PhyMet2: a database and toolkit for phylogenetic and metabolic analyses of methanogens. Environmental Microbiology Reports 10, 378–382.}
+\tiny{Burdukiewicz, M., Gagat, P., Jabłoński, S., Chilimoniuk, J., Gaworski, M., Mackiewicz, P., and Łukaszewicz, M. (2018). PhyMet2: a database and toolkit for phylogenetic and metabolic analyses of methanogens. Environmental Microbiology Reports 10, 378–382.}
 
 
 \end{frame}
 
 \begin{frame}{Podsumowanie}
-\begin{itemize}
+\small\begin{itemize}
 \item Zastosowanie n-gramów (k-merów), czyli ciągów aminokwasów lub nukleotydów o długości $n$ okazało się skuteczne do charakterystyki sekwencji peptydów sygnałowych i amyloidogennych oraz markerów molekularnych metanogenów, a następnie do przewidywania tych peptydów oraz optymalnych warunków hodowli metanogenów w oparciu o te markery.
 \item Zastosowanie uproszczonych alfabetów aminokwasowych, w których aminokwasy są grupowane ze względu na swoje podobieństwo fizykochemiczne lub funkcjonalne, okazało się bardzo dobrym podejściem do opisu sekwencji aminokwasowych o zróżnicowanym składzie i wyeksponowania ich cech istotnych do przewidywania peptydów sygnałowych i amyloidogennych.
 \item Opracowana procedura QuiPT (\textbf{Qui}ck \textbf{P}ermutation \textbf{T}est) pozwala na szybki wybór najbardziej informatywnych n-gramów i uzyskiwanie dokładnych p-wartości.
 \item Zastosowana metodologia tworzenia uproszczonych alfabetów umożliwia identyfikowania kluczowych cech związanych z charakterystycznymi cechami peptydów.
-\item Metoda n-gramów i uproszczonych alfabetów nadaje się do trenowania algorytmów na małych zbiorach danych różnych sekwencji.
-\item Opracowany model peptydów sygnałowych wykazał wysoką hydrofobowość h-regionu i polarność n-regionu oraz dużą zawartość reszt aminokwasowych z grupą hydroksylową w c-regionie. Reszty zaburzające strukturę $\alpha$-helis, czyli glicyna i prolina są stosunkowo częste w c-regionie i bardzo rzadkie w h-regionie.
-\item Opracowany model peptydów amyloidogennych wykazał, że charakteryzują się one dużą zawartością reszt aminokwasowych alifatycznych, niepolarnych  i aromatycznych. Miejsca amyloidogenne mogą również zawierać kilka reszt polarnych, lecz nie posiadają reszt zakłócających tworzenie $\beta$-struktur, tj. glicyny, lizyny, proliny i argininy.
-\item Optymalne warunki hodowli metanogenów (czas podwojenia populacji, optymalna temperatura wzrostu, optymalne stężenia NaCl oraz optymalne pH) wykazują związki z filogenetycznym pokrewieństwem tych archeonów i mogą być przewidywane w oparciu o standardowe markery molekularne, jak 16S rRNA.
-
 \end{itemize}
-\end{frame}  
+\end{frame}
 
 \begin{frame}{Podsumowanie}
 
@@ -949,12 +903,12 @@ Pakiety \textbf{R}:
 \begin{frame}{Podziękowania}
 Mentorzy:
 \begin{itemize}
-\item \textbf{Paweł Mackiewicz (University of Wrocław)}.
-\item Lars Kaderali (University of Greifswald).
-\item Małgorzata Kotulska (Wrocław University of Science and Technology).
-\item Marcin Łukaszewicz (University of Wrocław).
-\item Henrik Nielsen (Technical University of Denmark).
+\item \textbf{Paweł Mackiewicz (Uniwersytet Wrocławski)}.
+\item Małgorzata Kotulska (Politechnika Wrocławska).
+\item Marcin Łukaszewicz (Uniwersytet Wrocławski).
 \item Stefan Rödiger (Brandenburg University of Technology Cottbus-Senftenberg).
+\item Henrik Nielsen (Technical University of Denmark).
+\item Lars Kaderali (University of Greifswald).
 \item Andreas Weinhäusel (Austrian Institute of Technology).
 \end{itemize}
 \end{frame}
@@ -963,13 +917,14 @@ Mentorzy:
 \begin{frame}{Podziękowania}
 Współpracownicy:
 \begin{itemize}
-\item Anna Duda-Madej (Wrocław Medical University).
-\item Przemysław Gagat (University of Wrocław).
-\item Marlena G\k{a}sior-Głogowska (Wrocław University of Science and Technology).
-\item Sławomir Jabłoński (University of Wrocław).
-\item Rafał Kolenda (Sanger Institute).
+\item Przemysław Gagat (Uniwersytet Wrocławski).
+\item Jarosław Chilimoniuk (Uniwersytet Wrocławski).
+\item Rafał Kolenda (Uniwersytet Przyrodniczy we Wrocławiu).
+\item Piotr Sobczyk (Politechnika Wrocławska).
+\item Sławomir Jabłoński (Uniwersytet Wrocławski).
+\item Marlena G\k{a}sior-Głogowska (Politechnika Wrocławska).
 \item Chris Lauber (Technical University Dresden).
-\item Piotr Sobczyk (Wrocław University of Science and Technology).
+\item Anna Duda-Madej (Uniwersytet Medyczny im. Piastów Śląskich we Wrocławiu).
 \end{itemize}
 
 \end{frame}
@@ -989,18 +944,21 @@ Finansowanie:
 
 \small
 \begin{enumerate}  
-\item Kolenda R., \underline{Burdukiewicz M.}, Schiebel J., Rödiger S, Sauer L., Szabo I., Orłowska A., Weinreich J., Nitschke J., Böhm, A., Gerber U., Roggenbuck D., Schierack P., Adhesion of Salmonella to pancreatic secretory granule membrane major glycoprotein GP2 of human and porcine origin depends on FimH sequence variation, \textbf{Frontiers in microbiology}, 2018 [liczba cytacji: 0].
 
-\item Mackiewicz D., Posacki P., \underline{Burdukiewicz M.}, Błażej P. \textit{Role of recombination and faithfulness to partner in sex chromosome degeneration}. \textbf{Scientific Reports}, 2018 [liczba cytacji: 0].
+\item \underline{Burdukiewicz, M.}, Sobczyk, P., Chilimoniuk, J., Gagat, P., and Mackiewicz, P., \textit{Prediction of Signal Peptides in Proteins from Malaria Parasites}. \textbf{International Journal of Molecular Sciences}, 2018.
+
+\item Kolenda R., \underline{Burdukiewicz M.}, Schiebel J., Rödiger S, Sauer L., Szabo I., Orłowska A., Weinreich J., Nitschke J., Böhm, A., Gerber U., Roggenbuck D., Schierack P., \textit{Adhesion of Salmonella to pancreatic secretory granule membrane major glycoprotein GP2 of human and porcine origin depends on FimH sequence variation}, \textbf{Frontiers in microbiology}, 2018.
+
+\item Mackiewicz D., Posacki P., \underline{Burdukiewicz M.}, Błażej P. \textit{Role of recombination and faithfulness to partner in sex chromosome degeneration}. \textbf{Scientific Reports}, 2018.
 
 \item \underline{Burdukiewicz M.}, Gagat P. Jab\l{}o\'nski S., Chilimoniuk J., 
 Gaworski M., Mackiewicz P., \L{}ukaszewicz M. \textit{PhyMet2: a database and toolkit for phylogenetic and metabolic analyses of methanogens}.
-\textbf{Environmental Microbiology Reports}, 2018 [liczba cytacji: 0].
+\textbf{Environmental Microbiology Reports}, 2018.
 
 \item \underline{Burdukiewicz M.}, Sobczyk P. R\"{o}diger S., Duda-Madej A., 
 Mackiewicz P., Kotulska M., \textit{Amyloidogenic motifs revealed by n-gram 
 analysis}. 
-\textbf{Scientific Reports}, 2017 [liczba cytacji: 2]. 
+\textbf{Scientific Reports}, 2017. 
 
 \item Schiebel J., B\"{o}hm A., Nitschke J., \underline{Burdukiewicz M.}, 
 Weinreich J., Ali A., Roggenbuck
@@ -1008,61 +966,56 @@ D., R\"{o}diger S., Schierack P., \textit{Genotypic and phenotypic
 characteristics in association
 with biofilm formation in different pathotypes of human clinical Escherichia 
 coli isolates},
-\textbf{Applied and Environmental Microbiology}, 2017 [liczba cytacji: 2].
+\textbf{Applied and Environmental Microbiology}, 2017.
 
 \item R\"{o}diger S., \underline{Burdukiewicz M.}, Spiess A.-N., Blagodatskikh 
 K., \textit{Enabling reproducible real-time quantitative PCR research: the RDML 
 package}. 
-\textbf{Bioinformatics}, 2017 [liczba cytacji: 0].
+\textbf{Bioinformatics}, 2017.
 
 \item \underline{Burdukiewicz M.}, R\"{o}diger S., Sobczyk P., Menschikowski 
 M., Schierack P.,
 Mackiewicz P., \textit{Methods for comparing multiple digital PCR experiments}, 
 \textbf{Biomolecular
-Detection and Quantification}, 2016 [liczba cytacji: 2].
+Detection and Quantification}, 2016.
 
 \item Spiess A.-N., R\"{o}diger S., \underline{Burdukiewicz M.}, Volksdorf T., 
 Tellinghuisen J., \textit{System-
 specific periodicity in quantitative real-time polymerase chain reaction data 
 questions
-threshold-based quantitation}, \textbf{Scientific Reports}, 2016 [liczba cytacji: 4]. % [40 points].
+threshold-based quantitation}, \textbf{Scientific Reports}, 2016.
 
 \item Kolenda R., \underline{Burdukiewicz M.}, Schierack P., \textit{A 
 systematic review and meta-analysis of the epidemiology of pathogenic 
 escherichia coli of calves and the role of calves as reservoirs for human 
 pathogenic E. coli}. \textbf{Frontiers in Cellular and Infection Microbiology}, 
-2015 [liczba cytacji: 34]. % [40 points].
+2015.
 
 \item R\"{o}diger S., \underline{Burdukiewicz M.}, Schierack P., 
 \textit{chipPCR: an R Package to Pre-Process Raw Data of Amplification Curves}. 
-\textbf{Bioinformatics}, 2015 [liczba cytacji: 12]. % [45 points].
+\textbf{Bioinformatics}, 2015.
 
 \item R\"{o}diger S., \underline{Burdukiewicz M.}, Blagodatskikh K., Jahn M., 
 Schierack P., 
 \textit{R as an
 Environment for the Reproducible Analysis of DNA Amplification Experiments}, 
-\textbf{R Journal}, 2015 [liczba cytacji: 14]. %  [30 points].
+\textbf{R Journal}, 2015.
 
 \item Spiess A.-N., Deutschmann C., \underline{Burdukiewicz M.}, Himmelreich 
 R., 
 Klat K., Schierack P., R\"{o}diger S., \textit{Impact of smoothing on parameter 
 estimation in quantitative dna amplification experiments}. \textbf{Clinical 
-Chemistry}, 2014 [liczba cytacji: 13]. %  [50 points].
+Chemistry}, 2014.
 
 \end{enumerate}
 \end{frame}
 
 \begin{frame}{Podsumowanie}
-\begin{itemize}
+\small\begin{itemize}
 \item Zastosowanie n-gramów (k-merów), czyli ciągów aminokwasów lub nukleotydów o długości $n$ okazało się skuteczne do charakterystyki sekwencji peptydów sygnałowych i amyloidogennych oraz markerów molekularnych metanogenów, a następnie do przewidywania tych peptydów oraz optymalnych warunków hodowli metanogenów w oparciu o te markery.
 \item Zastosowanie uproszczonych alfabetów aminokwasowych, w których aminokwasy są grupowane ze względu na swoje podobieństwo fizykochemiczne lub funkcjonalne, okazało się bardzo dobrym podejściem do opisu sekwencji aminokwasowych o zróżnicowanym składzie i wyeksponowania ich cech istotnych do przewidywania peptydów sygnałowych i amyloidogennych.
 \item Opracowana procedura QuiPT (\textbf{Qui}ck \textbf{P}ermutation \textbf{T}est) pozwala na szybki wybór najbardziej informatywnych n-gramów i uzyskiwanie dokładnych p-wartości.
 \item Zastosowana metodologia tworzenia uproszczonych alfabetów umożliwia identyfikowania kluczowych cech związanych z charakterystycznymi cechami peptydów.
-\item Metoda n-gramów i uproszczonych alfabetów nadaje się do trenowania algorytmów na małych zbiorach danych różnych sekwencji.
-\item Opracowany model peptydów sygnałowych wykazał wysoką hydrofobowość h-regionu i polarność n-regionu oraz dużą zawartość reszt aminokwasowych z grupą hydroksylową w c-regionie. Reszty zaburzające strukturę $\alpha$-helis, czyli glicyna i prolina są stosunkowo częste w c-regionie i bardzo rzadkie w h-regionie.
-\item Opracowany model peptydów amyloidogennych wykazał, że charakteryzują się one dużą zawartością reszt aminokwasowych alifatycznych, niepolarnych  i aromatycznych. Miejsca amyloidogenne mogą również zawierać kilka reszt polarnych, lecz nie posiadają reszt zakłócających tworzenie $\beta$-struktur, tj. glicyny, lizyny, proliny i argininy.
-\item Optymalne warunki hodowli metanogenów (czas podwojenia populacji, optymalna temperatura wzrostu, optymalne stężenia NaCl oraz optymalne pH) wykazują związki z filogenetycznym pokrewieństwem tych archeonów i mogą być przewidywane w oparciu o standardowe markery molekularne, jak 16S rRNA.
-
 \end{itemize}
 \end{frame}  
 
@@ -1073,76 +1026,116 @@ Chemistry}, 2014 [liczba cytacji: 13]. %  [50 points].
   \bibliography{references}
 \end{frame}  
 
-\begin{frame}{Ranking alphabets}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
+\begin{frame}[allowframebreaks]{QuiPT - wyjaśnienia}
 
-set.seed(3)
-exdat <- data.frame(
-  alph = paste0("A", 1L:5), 
-  c1 = 0.7 + runif(5)/5,
-  c2 = 0.75 + runif(5)/5,
-  c3 = 0.65 + runif(5)/5
-) %>% 
-  melt %>% 
-  group_by(variable) %>% 
-  mutate(r = rank(value)) %>% 
-  ungroup
+\begin{enumerate}
+    
+\item Hipoteza testu: dwustronna.
 
-best_alph <- group_by(exdat, alph) %>%
-  summarise(cr = sum(r)) %>%
-  arrange(desc(cr)) %>% 
-  slice(1) %>% 
-  select(alph) %>% 
-  unlist %>% 
-  as.character
+$H_0$: częstość występowania n-gramu z danej sekwencji nie jest związane z przynależnością tej sekwencji do danej grupy.
 
-exdat <- mutate(exdat, best = alph == best_alph)
+$H_A$: częstość występowania n-gramu z danej sekwencji jest związane z przynależnością tej sekwencji do danej grupy.
 
-ggplot(exdat, aes(y = variable, x = value, color = alph)) +
-  geom_point(size = 4) +
-  scale_x_continuous("AUC") +
-  scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
-  scale_color_discrete("Alphabet") +
-  my_theme
+\item Statystyka testowa: wzajemna informacja $I$ zdefiniowana następującym wzorem:
 
-@
-\end{frame}
+$\operatorname{I}(X;Y) = \sum_{y \in \mathcal Y} \sum_{x \in \mathcal X}
+    { p(x,y) \log{ \left(\frac{p(x,y)}{p(x)\,p(y)} \right) }}$
 
+\begin{itemize}
 
-\begin{frame}{Ranking alphabets}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
-ggplot(exdat, aes(y = variable, x = value, color = alph, label = (r - 6)*-1)) +
-  geom_text(size = 4) +
-  scale_x_continuous("AUC") +
-  scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
-  scale_color_discrete("Alphabet") +
-  scale_shape_discrete("Best simplified alphabet") +
-  my_theme
+\item p(x,y): wspólny rozkład prawdopodobieństwa X i Y.
+
+\item p(x): rozkład brzegowy X.
+
+\item X: zmienna losowa o rozkładzie dwumianowym (obecność n-gramu w sekwencji).
+
+\item Y: zmienna losowa o rozkładzie dwumianowym (przynależność sekwencji do grupy).
+
+\end{itemize}
+
+\item Moc testu opartego na wzajemnej informacji:
+
+\begin{itemize}
+
+\item François, D., Wertz, V., and Verleysen, M. (2006). \textit{The permutation test for feature selection by mutual information}. Proceedings of the 14th European Symposium on Artificial Neural Networks (ESANN 2006).
+
+\item Szymczak, S., Nuzzo, A., Fuchsberger, C., Schwarz, D.F., Ziegler, A., Bellazzi, R., and Igl, B.-W. (2007). \textit{Genetic association studies for gene expressions: permutation-based mutual information in a comparison with standard ANOVA and as a novel approach for feature selection}. BMC Proc 1, S9.
+
+\item Airola, A., Pahikkala, T., Boberg, J., and Salakoski, T. (2010). \textit{Applying Permutation Tests for Assessing the Statistical Significance of Wrapper Based Feature Selection}. In 2010 Ninth International Conference on Machine Learning and Applications, pp. 989–994.
 
 
-@
-We rank alphabets separately in all length categories assuming the rank 1 for the best AUC, rank 2 for the second best AUC and so on.
+\end{itemize}
 
+
+\item Test został nazwany permutacyjnym, ponieważ zastępuje testy permutacyjne niezależności rozkładów. W literaturze przedmiotu testy te zwyczajowo nazywane są permutacyjnymi, dlatego przyjęto nazwę w konwencji stosowanej przez typowych użytkowników. Dzięki tej nazwie test będzie lepiej rozpoznawany przez potencjalnych użytkowników.
+
+\item Stosuje się test dwustronny, ponieważ zarówno elementy nadreprezentowane jak i niedoreprezentowane ponieważ te ostatnie wnoszą cenną informację o układach, które są zabronione w danym układzie.
+
+\item p-wartości: dowolnie małe w zależności od zbioru danych.
+
+\end{enumerate}
 
 \end{frame}
 
+\begin{frame}{signalHsmm}
 
+W literaturze predmiotu preferowane są modele o największej czułości. Wybrany alfabet zapewnia zarówno największą czułość jak i AUC.
 
-\begin{frame}{Ranking alphabets}
-<<echo = FALSE, message=FALSE,warning=FALSE,fig.align='center',fig.height=4>>=
-ggplot(exdat, aes(y = variable, x = value, color = alph, shape = best)) +
-  geom_point(size = 4) +
-  scale_x_continuous("AUC") +
-  scale_y_discrete("Category", labels = paste0("Category ", 1L:3)) +
-  scale_color_discrete("Alphabet") +
-  scale_shape_discrete("Best simplified alphabet") +
-  my_theme
+Odchylenia standardowe uzyskanych alfabetów zostały obliczone w drodze 10-krotnej walidacji krzyżowej. Ich niewielka zmienność wynika z dużej stabilności uzyskanego klasyfikatora, którą można zaobserwować porównując iterację uczoną na danych z 1987 roku i 2010 roku.
+ 
+Wnioski na stronie 40 wynikają z wielu tabel i rysunków, przykładowo rys. 9.
 
-
-@
-The best-performing alphabet has the lowest sum of ranks.  
+PCA: przedstawone na rysunku dwa pierwsze komponenty składowe wyjaśniają 40\% wariancji.
 
 \end{frame}
 
+\begin{frame}{Podobieństwo alfabetów i jakość predykcji}
+Czy alfabety podobne do najlepszego uproszczonego alfabetu również dobrze przewidują amyloidy?
+\end{frame}
+
+\begin{frame}{Similarity index}
+<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
+si_dat <- read.csv2("si_dat.csv")
+
+levels(si_dat[["et"]]) <- c("Najlepszy uproszczony alfabet", "Uproszczony alfabet", 
+                             "Pełny alfabet", "Standardowy uproszczony alfabet", 
+                            "Standardowy uproszczony alfabet")
+
+
+simil_plot <- ggplot(si_dat, aes(x=si, y=AUC_mean)) + 
+  # geom_point(data = si_dat, 
+  #            aes(x = si, y = AUC_mean, color = et, shape = et), size = 4) +
+  #geom_density_2d(color = "black", contour = TRUE) +
+    geom_bin2d(bins = 30) +
+  # stat_density2d(aes(fill=..level..), color = "black",
+  #                contour = TRUE, geom = "polygon", alpha = 0.5, binwidth = 50, bins = 10) +
+  scale_fill_continuous("Liczba alfabetów", low = "gold", high = "goldenrod4") +
+  xlab("Similarity index") +
+  ylab("AUC") +
+  my_theme +
+  geom_point(data = droplevels(filter(si_dat, et != "Uproszczony alfabet")),
+             aes(x = si, y = AUC_mean, color = et, shape = et), size = 4) +
+  guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2), 
+         fill = guide_colorbar(barwidth = unit(5, "line"))) +
+  scale_shape_manual("", values = c(16, 15, 15), drop = FALSE) +
+  scale_color_manual("", values = c("red", "green", "blue"), drop = FALSE) +
+  theme(panel.grid.major = element_line(color = "lightgrey", size = 0.5)) 
+
+print(simil_plot)
+@
+Similarity index~\citep{stephenson_unearthing_2013} mierzy podobieństwo między dwoma uproszczonymi alfabetami (1:~identyczne alfabety, 0:~zupełnie niepodobne alfabety).
+
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
+\end{frame}
+
+
+
+\begin{frame}{Similarity index}
+<<echo = FALSE,message=FALSE,fig.align='center',fig.height=4,warning=FALSE>>=
+print(simil_plot)
+@
+Korelacja między similarity index i średnim AUC jest istotna ($\textrm{p-value} \leq 2.2^{-16}$; $\rho = 0.51$).
+\tiny{Burdukiewicz, M., Sobczyk, P., Rödiger, S., Duda-Madej, A., Mackiewicz, P., and Kotulska, M. (2017). Amyloidogenic motifs revealed by n-gram analysis. Scientific Reports 7, 12961}
+\end{frame}
 
 \end{document}
